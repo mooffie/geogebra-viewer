@@ -1,0 +1,56 @@
+<html>
+<style type="text/css">
+body {
+  margin-left: 3em;
+  margin-right: 4em;
+  margin-top: 2em;
+}
+
+h1,h2,h3,h4 {
+  margin-left: -0.2em;
+}
+
+p.blet {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  text-align: center;
+}
+
+div.screenshot {
+  text-align: center;
+}
+
+div.screenshot a {
+  border: none;
+}
+
+</style>
+<body>
+
+<h1>GeoGebra thumbnails: bookmarklet</h1>
+
+<p>The GeoGebra forums have a little problem: You have to launch
+GeoGebra to see the .GGB worksheets attached to messages. That's a drag
+if you're using a slow computer.</p>
+
+<p>This page contains something to alleviate the problem: a
+bookmarklet<sup><a
+href="http://en.wikipedia.org/wiki/Bookmarklet">[?]</a></sup> to show
+you the worksheets' thumbnails (and construction protocol). Drag the
+following link to your browser's toolbar (or bookmark it with your right
+mouse button). Then, when you're browsing a forum page, click the button
+to show all the thumbnails.</p>
+
+<p class="blet">
+<a href="javascript:(function(){if(!window.bm_entry){_my_script=document.createElement('SCRIPT');_my_script.type='text/javascript';_my_script.src='http://www.typo.co.il/~mooffie/ggb/bookmarklet-app.js?x='+Math.random();document.getElementsByTagName('head')[0].appendChild(_my_script);}else{alert('The bookmarklet was already used on this page.');}})();">Show GG thumbs</a>
+</p>
+
+<p>Here's a screenshot of this in action (click to enlarge):</p>
+
+<div class="screenshot">
+<a href="blet.png"><img src="blet_th.jpg" /></a>
+</div>
+
+<p>Two things are encircled in red here: the toolbar button, and the thumbnail (+ construction protocol) you get after clicking it.</p>
+
+<p>In you encounter any problems, <a href="mailto:mooffie@gmail.com">email me</a> or ask <a href="http://www.geogebra.org/forum/viewtopic.php?f=44&t=25201">in the forum</a>.</p>

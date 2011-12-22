@@ -1,0 +1,15 @@
+/**
+ * This code is based on:
+ * http://betterexplained.com/articles/how-to-make-a-bookmarklet-for-your-web-application/
+ */
+(function() {
+  if (!window.bm_entry) {
+    _my_script = document.createElement('SCRIPT');
+    _my_script.type = 'text/javascript';
+    _my_script.src = 'http://www.typo.co.il/~mooffie/ggb/bookmarklet-app.js?x=' + Math.random();
+    document.getElementsByTagName('head')[0].appendChild(_my_script);
+  }
+  else {
+    alert('The bookmarklet was already used on this page.');
+  }
+})();
