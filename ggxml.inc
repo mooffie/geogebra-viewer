@@ -320,6 +320,18 @@ class GGParser {
     $this->cons->add($line);
   }
 
+  function add_animation($elt) {
+     // <slider min="0" max="60" absoluteScreenLocation="true" width="100.0" x="242.0" y="192.0" fixed="true" horizontal="true"/>
+     // <animation step="1" speed="Vitesse" type="1" playing="true"/>
+    $def = '';
+    if (!empty($elt->slider['max'])) {
+      $def = sprintf('%s ... %s', $elt->slider['min'], $elt->slider['max']);
+    }
+    $line = new GGLine(array((string)$elt['label'] . '.animate'), $def);
+    $line->is_colon = TRUE;
+    $this->cons->add($line);
+  }
+
   function handle_properties($elt) {
     $line = $this->cons->find_by_label((string)$elt['label']);
 
@@ -336,6 +348,12 @@ class GGParser {
       if (in_array($type, array('function', 'functionNVar', 'implicitpoly', 'conic', 'line'))) {
         if (!$line->is_command) {
           $line->is_colon = TRUE;
+        }
+      }
+
+      if (!empty($elt->animation['playing'])) {
+        if ($elt->animation['playing'] == 'true') {
+          $this->add_animation($elt);
         }
       }
 
