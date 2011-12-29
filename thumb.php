@@ -38,7 +38,7 @@ function build_output() {
   require_once './ggxml.inc';
 
   // Transfer .ggb file from remote server into local temporary folder.
-  copy($paths->get_download_url(), $paths->temp('zip'));
+  download_worksheet($paths->get_download_url(), $paths->temp('zip'));
 
   if (unzip($paths->temp('zip'), 'geogebra_thumbnail.png', $paths->output('png')) != 0) {
     // .ggt files don't have a thumbnail.
