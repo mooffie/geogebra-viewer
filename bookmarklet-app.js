@@ -33,8 +33,10 @@ function bm_entry() {
     img.alt = 'Loading ...';
     img.border = '1';
     img.onload = function() {
-      var MAX = 300;
-      var ratio = 300 / Math.max(this.width, this.height);
+      // If the image is tiny, enlarge to 300px. If it's huge, shrink to 600px.
+      var currentSize = Math.max(this.width, this.height);
+      var newSize     = Math.min(Math.max(currentSize, 300), 600);
+      var ratio = newSize / currentSize;
       // "if only a width or a height is specified, the image will be scaled automatically and retain its aspect ratio."
       this.width *= ratio;
       iframe.style.display = 'inline-block';
