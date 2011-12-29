@@ -62,8 +62,18 @@ function download_worksheet($url, $destination) {
   }
 }
 
+/**
+ * Verifies a zip file.
+ */
+function is_valid_zip($path) {
+  return file_exists($path) && file_get_contents($path, FALSE, NULL, 0, 2) == 'PK';
+}
+
 // Testing code.
 if (php_sapi_name() == 'cli') {
   error_reporting(E_ALL);
-  download_worksheet('http://rangercollege.edu/math/ggb30/wind_triangle.html;0', 'here.zip');
+  //download_worksheet('http://rangercollege.edu/math/ggb30/wind_triangle.html;0', 'here.zip');
+  if (is_valid_zip('here.zip')) {
+    echo "ok\n";
+  }
 }
