@@ -38,19 +38,23 @@ function build_output() {
   require_once './ggxml.inc';
 
   // Transfer .ggb file from remote server into local temporary folder.
-  download_worksheet($paths->get_download_url(), $paths->temp('zip'));
+  list($success, $is_base64) = download_worksheet($paths->get_download_url(), $paths->temp('zip'));
 
-
-  if (!unzip($paths->temp('zip'), 'geogebra_thumbnail.png', $paths->output('png'))) {
-    if (!is_valid_zip($paths->temp('zip'))) {
-      // Might happen on 404, or if we need to login in order to access the file (e.g., in case of CMS).
-      copy('message-no-access.png', $paths->output('png'));
-    }
-    else {
+  if (!$success) {
+    // Might happen on 404, or if we need to login in order to access the file (e.g., in case of CMS).
+    copy('message-no-access.png', $paths->output('png'));
+  }
+  else {
+    if (!unzip($paths->temp('zip'), 'geogebra_thumbnail.png', $paths->output('png'))) {
       // Some worksheets don't have a thumbnail: GG 3.0 files, base64 encoded applets, and .ggt files.
       copy('message-no-thumbnail.png', $paths->output('png'));
     }
+    if ($is_base64) {
+      // Make a copy of a base64 applet .ggb so we can have a download link.
+      copy($paths->temp('zip'), $paths->output('ggb'));
+    }
   }
+
   file_put_contents($paths->output('url'), $paths->get_download_url());
 
   //

@@ -30,7 +30,11 @@ function absolutize_url($path) {
  */
 function download_worksheet($url, $destination) {
 
+  $is_base64 = FALSE;
+
   if (preg_match('/(.*);(\d+)$/', $url, $m)) {
+
+    $is_base64 = TRUE;
 
     //
     // Extract a Base64 encoded worksheet.
@@ -60,6 +64,8 @@ function download_worksheet($url, $destination) {
 
     copy($url, $destination);
   }
+
+  return array(is_valid_zip($destination), $is_base64);
 }
 
 /**
