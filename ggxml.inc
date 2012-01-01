@@ -187,6 +187,13 @@ class GGUtils {
     return $args;
   }
 
+  /**
+   * Whether a string looks like a number
+   */
+  function is_num($s) {
+    return preg_match('/^-?\d*\.?\d*$/', $s);
+  }
+
 }
 
 /**
@@ -306,10 +313,8 @@ class GGParser {
         break;
     }
 
-    if ($def) {
-      $line = new GGLine(array((string)$elt['label']), $def);
-      $this->cons->add($line);
-    }
+    $line = new GGLine(array((string)$elt['label']), $def);
+    $this->cons->add($line);
 
     return $line;
   }
@@ -320,16 +325,45 @@ class GGParser {
     $this->cons->add($line);
   }
 
+  /**
+   * Returns a string of the form "2 ... 8.5" for sliders.
+   */
+  function get_slider($elt) {
+    if ($elt->slider) {
+      $is_angle = ((string)$elt['type'] == 'angle');
+      $min = $elt->slider['min'];
+      $max = $elt->slider['max'];
+      if ($is_angle) {
+        if (GGUtils::is_num($max)) {
+          $max = $this->num_or_str(  ((float)$max/M_PI * 180)  ) . '°';
+        }
+        if (GGUtils::is_num($min)) {
+          $min = $this->num_or_str(  ((float)$min/M_PI * 180)  ) . '°';
+        }
+      }
+      // Lastly, We convert 360*° to 360°.
+      return preg_replace('/\*°/', '°', sprintf('%s ... %s', $this->num_or_str($min), $this->num_or_str($max)));
+    }
+  }
+
   function add_animation($elt) {
      // <slider min="0" max="60" absoluteScreenLocation="true" width="100.0" x="242.0" y="192.0" fixed="true" horizontal="true"/>
      // <animation step="1" speed="Vitesse" type="1" playing="true"/>
     $def = '';
-    if (!empty($elt->slider['max'])) {
-      $def = sprintf('%s ... %s', $elt->slider['min'], $elt->slider['max']);
+    if ($this->get_slider($elt)) {
+      $def = $this->get_slider($elt);
     }
     $line = new GGLine(array((string)$elt['label'] . '.animate'), $def);
     $line->is_colon = TRUE;
     $this->cons->add($line);
+  }
+
+  function add_slider($elt) {
+    if (($def = $this->get_slider($elt))) {
+      $line = new GGLine(array((string)$elt['label'] . '.slider'), $def);
+      $line->is_colon = TRUE;
+      $this->cons->add($line);
+    }
   }
 
   function handle_properties($elt) {
@@ -351,9 +385,24 @@ class GGParser {
         }
       }
 
-      if (!empty($elt->animation['playing'])) {
-        if ($elt->animation['playing'] == 'true') {
-          $this->add_animation($elt);
+      if (!empty($elt->show['object'])) {
+        if ($elt->show['object'] == 'false') {
+          $line->is_hidden = TRUE;
+        }
+      }
+
+      if (!empty($elt->auxiliary['val'])) {
+        if ($elt->auxiliary['val'] == 'true') {
+          $line->is_auxiliary = TRUE;
+        }
+      }
+
+      // Add animation or slider.
+      if (!empty($elt->animation['playing']) && $elt->animation['playing'] == 'true') {
+        $this->add_animation($elt);
+      } else {
+        if (!$line->is_hidden) {
+          $this->add_slider($elt);
         }
       }
 
@@ -368,18 +417,6 @@ class GGParser {
       }
       if (!empty($elt->javascript['onUpdate'])) {
         $this->add_script($elt, 'update', $elt->javascript['onUpdate']);
-      }
-
-      if (!empty($elt->show['object'])) {
-        if ($elt->show['object'] == 'false') {
-          $line->is_hidden = TRUE;
-        }
-      }
-
-      if (!empty($elt->auxiliary['val'])) {
-        if ($elt->auxiliary['val'] == 'true') {
-          $line->is_auxiliary = TRUE;
-        }
       }
 
       if (!empty($elt->condition['showObject'])) {
