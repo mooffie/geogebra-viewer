@@ -53,6 +53,9 @@ function bm_entry() {
     };
     img.src = SERVICE + '?url=' + escape(url);
 
+    // GeogebraTube.org has an image at the background that gets on top of our iframe.
+    parent.style.backgroundImage = 'none';
+
     parent.appendChild(img);
     parent.appendChild(iframe);
   }
