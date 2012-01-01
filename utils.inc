@@ -3,11 +3,11 @@
 /**
  * Unzips a file.
  *
- * @return int The shell exit code. Zero on success.
+ * @return TRUE is the extraction was successful.
  */
 function unzip($zip, $filename, $output) {
   exec(sprintf('unzip -p %s %s > %s', $zip, $filename, $output), $output, $exit_code);
-  return $exit_code;
+  return $exit_code == 0;
 }
 
 /**

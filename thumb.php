@@ -41,7 +41,7 @@ function build_output() {
   download_worksheet($paths->get_download_url(), $paths->temp('zip'));
 
 
-  if (unzip($paths->temp('zip'), 'geogebra_thumbnail.png', $paths->output('png')) != 0) {
+  if (!unzip($paths->temp('zip'), 'geogebra_thumbnail.png', $paths->output('png'))) {
     if (!is_valid_zip($paths->temp('zip'))) {
       // Might happen on 404, or if we need to login in order to access the file (e.g., in case of CMS).
       copy('message-no-access.png', $paths->output('png'));
@@ -57,14 +57,14 @@ function build_output() {
   // Build the construction protocol.
   //
   $protocol = '';
-  if (unzip($paths->temp('zip'), 'geogebra_macro.xml', $paths->temp('macro.xml')) == 0) {
+  if (unzip($paths->temp('zip'), 'geogebra_macro.xml', $paths->temp('macro.xml'))) {
     $protocol .= stringify_macro_file($paths->temp('macro.xml'));
   }
-  if (unzip($paths->temp('zip'), 'geogebra.xml', $paths->temp('main.xml')) == 0) {
+  if (unzip($paths->temp('zip'), 'geogebra.xml', $paths->temp('main.xml'))) {
     // Note: .ggt files have only macro.xml.
     $protocol .= stringify_construction_file($paths->temp('main.xml'));
   }
-  if (unzip($paths->temp('zip'), 'geogebra_javascript.js', $paths->temp('js')) == 0) {
+  if (unzip($paths->temp('zip'), 'geogebra_javascript.js', $paths->temp('js'))) {
     $js = file_get_contents($paths->temp('js'));
     if (substr_count(trim($js), "\n") > 0) {
       $protocol .= "\n/* -------- Global JavaScript: -------- */\n\n$js\n";
