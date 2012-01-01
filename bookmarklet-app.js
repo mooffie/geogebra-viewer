@@ -34,6 +34,7 @@ function bm_entry() {
     var SERVICE = 'http://www.typo.co.il/~mooffie/ggb/thumb.php';
 
     var iframe = document.createElement('IFRAME');
+    iframe.style.minWidth = '300px';
     iframe.width = '50%';
     iframe.height = '300';
     iframe.src = SERVICE + '?url=' + escape(url) + '&output_type=txt';
@@ -55,6 +56,8 @@ function bm_entry() {
 
     // GeogebraTube.org has an image at the background that gets on top of our iframe.
     parent.style.backgroundImage = 'none';
+    // The following is to prevent cut in pages like https://sites.google.com/site/ggbgv11/home/geogebra-files
+    parent.style.overflow = 'auto';
 
     parent.appendChild(img);
     parent.appendChild(iframe);
