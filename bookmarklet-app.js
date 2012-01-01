@@ -11,12 +11,12 @@ function bm_entry() {
    *
    * Code taken from http://stackoverflow.com/questions/470832/getting-an-absolute-url-from-a-relative-one-ie6-issue
    */
+  var escapeHTML = function (s) {
+    return s.split('&').join('&amp;').split('<').join('&lt;').split('"').join('&quot;');
+  }
   var qualifyURL = function(url) {
-    var escapeHTML = function (s) {
-      return s.split('&').join('&amp;').split('<').join('&lt;').split('"').join('&quot;');
-    }
     var el = document.createElement('div');
-    el.innerHTML= '<a href="'+escapeHTML(url)+'">x</a>';
+    el.innerHTML= '<a href="' + escapeHTML(url) + '">x</a>';
     return el.firstChild.href;
   }
 
@@ -26,19 +26,28 @@ function bm_entry() {
     return url;
   }
 
+  var serviceUrl = function(url, outputType) {
+    var SERVICE = 'http://www.typo.co.il/~mooffie/ggb/thumb.php';
+    return SERVICE + '?url=' + escape(url) + '&output_type=' + outputType;
+  }
+
   /**
    * Creates the IMG and IFRAME tags and inserts them into the document.
    */
-  var addDom = function(url, parent) {
-
-    var SERVICE = 'http://www.typo.co.il/~mooffie/ggb/thumb.php';
+  var addDom = function(url, parent, downloadUrl) {
 
     var iframe = document.createElement('IFRAME');
     iframe.style.minWidth = '300px';
     iframe.width = '50%';
     iframe.height = '300';
-    iframe.src = SERVICE + '?url=' + escape(url) + '&output_type=txt';
+    iframe.src = serviceUrl(url, 'txt');
     iframe.style.display = 'none';
+
+    var link = document.createElement('span');
+    if (downloadUrl) {
+      link.innerHTML= '<a href="' + escapeHTML(downloadUrl) + '">[download]</a>';
+    }
+    link.style.display = 'none';
 
     var img = document.createElement('IMG');
     img.alt = 'Loading ...';
@@ -51,8 +60,9 @@ function bm_entry() {
       // "if only a width or a height is specified, the image will be scaled automatically and retain its aspect ratio."
       this.width *= ratio;
       iframe.style.display = 'inline-block';
+      link.style.display = 'inline';
     };
-    img.src = SERVICE + '?url=' + escape(url);
+    img.src = serviceUrl(url, 'png');
 
     // GeogebraTube.org has an image at the background that gets on top of our iframe.
     parent.style.backgroundImage = 'none';
@@ -61,6 +71,7 @@ function bm_entry() {
 
     parent.appendChild(img);
     parent.appendChild(iframe);
+    parent.appendChild(link);
   }
 
   /**
@@ -113,17 +124,21 @@ function bm_entry() {
     var a = list[i];
 
     var url = null;
+    var downloadUrl = null;
+
     if (getAppletParam(a, 'filename')) {
       url = qualifyURL(getAppletParam(a, 'filename'));
+      downloadUrl = url;
     }
     else if (getAppletParam(a, 'ggbBase64')) {
       url = location.href + ';' + i;
+      downloadUrl = serviceUrl(url, 'ggb');
     }
 
     if (url) {
       counter++;
       s += "\n" + url;
-      addDom(fixURL(url), findContainer(a));
+      addDom(fixURL(url), findContainer(a), downloadUrl);
     }
   }
 
