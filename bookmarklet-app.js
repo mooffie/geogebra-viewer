@@ -6,23 +6,33 @@ function bm_entry() {
     return;
   }
 
-  if (location.href.indexOf('viewtopic') == -1) {
-    alert('You can use this bookmarklet only on a page showing a forum message.');
-    return;
+  /**
+   * Turns a relative URL into an absolute one.
+   *
+   * Code taken from http://stackoverflow.com/questions/470832/getting-an-absolute-url-from-a-relative-one-ie6-issue
+   */
+  var qualifyURL = function(url) {
+    var escapeHTML = function (s) {
+      return s.split('&').join('&amp;').split('<').join('&lt;').split('"').join('&quot;');
+    }
+    var el = document.createElement('div');
+    el.innerHTML= '<a href="'+escapeHTML(url)+'">x</a>';
+    return el.firstChild.href;
   }
 
-  var fix_url = function(url) {
+  var fixURL = function(url) {
     // Remove the session ID for anonymous users.
-    url = url.replace(/&sid=[^&]+/, '');
+    url = url.replace(/&sid=[^&;]+/, '');
     return url;
   }
-
-  var SERVICE = 'http://www.typo.co.il/~mooffie/ggb/thumb.php';
 
   /**
    * Creates the IMG and IFRAME tags and inserts them into the document.
    */
-  var add_dom = function(url, parent) {
+  var addDom = function(url, parent) {
+
+    var SERVICE = 'http://www.typo.co.il/~mooffie/ggb/thumb.php';
+
     var iframe = document.createElement('IFRAME');
     iframe.width = '50%';
     iframe.height = '300';
@@ -47,28 +57,85 @@ function bm_entry() {
     parent.appendChild(iframe);
   }
 
+  /**
+   * Finds a container in which to inject our DOM.
+   */
+  function findContainer(elt) {
+    while (elt && elt.tagName && !/^(td|div|p)$/i.test(elt.tagName)) {
+      elt = elt.parentNode;
+    }
+    // As last resort, take <body>.
+    return (elt && elt.tagName) ? elt : document.body;
+  }
+
+  /**
+   * Reads a <param> value of an applet.
+   */
+  var getAppletParam = function(elt, name) {
+    for (var list = elt.getElementsByTagName('param'), i = 0; i < list.length; i++) {
+      var param = list[i];
+      if (param.getAttribute('name') == name) {
+        return param.getAttribute('value');
+      }
+    }
+    return null;
+  }
+
   var s = '';
   var counter = 0;
 
+  //
+  // Handle links.
+  //
+  // Originally, links we checked only in pages contianing 'viewtopic' in their
+  // URL, to prevent abuse. Perhaps in the future we'll want to re-introduce
+  // some anti-abuse measure.
   for (var list = document.getElementsByTagName('a'), i = 0; i < list.length; i++) {
     var a = list[i];
-    if (a.innerHTML.toLowerCase().indexOf('.gg') == -1) { // .gg catches both .ggb and .ggt
-      continue;
-    }
-    if ((a.getAttribute('href') || '').indexOf('download') != -1) {
+    if (/\.gg[bt]/i.test(a.href + a.innerHTML)) {
       counter++;
       // According to http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48250443 , the 'href' property is an *absolute* URI.
-      s += "\n" + fix_url(a.href);
-      var parent = a;
-      while (parent && parent.tagName.toLowerCase() != 'td' && parent.tagName.toLowerCase() != 'div') {
-        parent = parent.parentNode;
-      }
-      add_dom(fix_url(a.href), parent ? parent : document.body);
+      s += "\n" + fixURL(a.href);
+      addDom(fixURL(a.href), findContainer(a));
     }
   }
 
+  //
+  // Handle applets.
+  //
+  for (var list = document.getElementsByTagName('applet'), i = 0; i < list.length; i++) {
+    var a = list[i];
+
+    var url = null;
+    if (getAppletParam(a, 'filename')) {
+      url = qualifyURL(getAppletParam(a, 'filename'));
+    }
+    else if (getAppletParam(a, 'ggbBase64')) {
+      url = location.href + ';' + i;
+    }
+
+    if (url) {
+      counter++;
+      s += "\n" + url;
+      addDom(fixURL(url), findContainer(a));
+    }
+  }
+
+  //
+  // Handle geogebratube.org intro pages.
+  //
+  // No, we're temporary(?) disabling this. These page already contain a "download" link,
+  // so no need for special treatment.
+  //
+  /*if (/material\/show\/id\/(\d+)/.test(location.href)) {
+    var url = 'http://www.geogebratube.org/files/material-' + RegExp.$1 + '.ggb';
+    addDom(url, findContainer(document.getElementById('material-actions') || document.getElementById('link-thumbnail')));
+    counter++;
+  }*/
+
   if (counter == 0) {
-    alert('No GGB files were found on this page.');
+    var msg = "I don't see any links to GeoGebra files (*.ggb), nor GeoGebra applets, on this page. There's nothing for me to do here.";
+    alert(msg);
   }
   //alert(s);
 }
