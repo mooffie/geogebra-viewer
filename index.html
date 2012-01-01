@@ -29,17 +29,17 @@ div.screenshot a {
 
 <h1>GeoGebra thumbnails: bookmarklet</h1>
 
-<p>The GeoGebra forums have a little problem: You have to launch
-GeoGebra to see the .GGB worksheets attached to messages. That's a drag
+<p>The GeoGebra forums, and web-pages in general, have a little problem: You have to launch
+GeoGebra to see the .GGB worksheets attached to messages. There's a similar problem with applets. That's a drag
 if you're using a slow computer.</p>
 
 <p>This page contains something to alleviate the problem: a
 bookmarklet<sup><a
 href="http://en.wikipedia.org/wiki/Bookmarklet">[?]</a></sup> to show
-you the worksheets' thumbnails (and construction protocol). Drag the
-following link to your browser's toolbar (or bookmark it with your right
-mouse button). Then, when you're browsing a forum page, click the button
-to show all the thumbnails.</p>
+you the worksheets' thumbnails (and construction protocol). <strong>Drag the
+following link to your browser's toolbar</strong> (<strong>or bookmark it</strong> with your right
+mouse button). Then, when you're browsing a forum page, or any page containing links to *.ggb files, or a page containing applets, click the button
+to see the thumbnails.</p>
 
 <p class="blet">
 <a href="javascript:(function(){if(!window.bm_entry){_my_script=document.createElement('SCRIPT');_my_script.type='text/javascript';_my_script.src='http://www.typo.co.il/~mooffie/ggb/bookmarklet-app.js?x='+Math.random();document.getElementsByTagName('head')[0].appendChild(_my_script);}else{alert('The bookmarklet was already used on this page.');}})();">Show GG thumbs</a>
@@ -52,6 +52,18 @@ to show all the thumbnails.</p>
 </div>
 
 <p>Two things are encircled in red here: the toolbar button, and the thumbnail (+ construction protocol) you get after clicking it.</p>
+
+<h2>Limitations</h2>
+
+<ul>
+<li><!--Old GeoGebra versions (3.1, 3.0, 2.0, etc.) don't save a thumbnail in the .ggb file. So this bookmarklet won't show a thumbnail in this case (
+-->
+No thumbnails: Old GG files (3.0, 2.0) and base64 encoded applets don't have them.</li>
+<li>Applets inside iframe aren't recognized.</li>
+<li>No access to CMSs.</li>
+</ul>
+
+<h2>Contact</h2>
 
 <p>In you encounter any problems, <a href="mailto:mooffie@gmail.com">email me</a> or
 ask <a href="http://www.geogebra.org/forum/viewtopic.php?f=44&t=25201">in the forum</a>.
