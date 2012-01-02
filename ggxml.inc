@@ -50,7 +50,9 @@ class GGLine {
         return $this->pretty_definition();
       }
       else {
-        return join($this->labels, ', ') . ($this->is_colon ? ': ' : ' = ') . $this->pretty_definition();
+        return ($this->labels
+                 ? (join($this->labels, ', ') . ($this->is_colon ? ': ' : ' = '))
+                 : '') . $this->pretty_definition();
       }
     }
   }
@@ -449,7 +451,7 @@ class GGParser {
       }
 
       if (!empty($elt->condition['showObject'])) {
-        $line = new GGLine(array((string)$elt['label'] . '.visibility'), (string)$elt->condition['showObject']);
+        $line = new GGLine(array(), sprintf('SetConditionToShowObject[%s, %s]', $elt['label'], $elt->condition['showObject']));
         $this->cons->add($line);
       }
     }
