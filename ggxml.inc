@@ -194,6 +194,13 @@ class GGUtils {
     return preg_match('/^-?\d*\.?\d*$/', $s);
   }
 
+  /**
+   * Whether a string looks like an integer
+   */
+  function is_integral($s) {
+    return preg_match('/^-?\d+$/', $s);
+  }
+
 }
 
 /**
@@ -333,7 +340,9 @@ class GGParser {
       $is_angle = ((string)$elt['type'] == 'angle');
       $min = $elt->slider['min'];
       $max = $elt->slider['max'];
+      $step = '1';
       if ($is_angle) {
+        // Convert to degrees.
         if (GGUtils::is_num($max)) {
           $max = $this->num_or_str(  ((float)$max/M_PI * 180)  ) . '°';
         }
@@ -341,8 +350,28 @@ class GGParser {
           $min = $this->num_or_str(  ((float)$min/M_PI * 180)  ) . '°';
         }
       }
+      else {
+        if (!empty($elt->animation['step'])) {
+          $step = $this->num_or_str($elt->animation['step']);
+        }
+        if (strpos($this->num_or_str($min) . $this->num_or_str($max) . $step, '.') !== FALSE) {
+          // There's a decimal number somewhere. So show everything as float.
+          if (GGUtils::is_integral($min)) {
+            $min = $min . '.0';
+          }
+          if (GGUtils::is_integral($max)) {
+            $max = $max . '.0';
+          }
+        }
+        else {
+          // All are integers. Convert '4.0' to '4'.
+          $min = $this->num_or_str($min);
+          $max = $this->num_or_str($max);
+        }
+      }
       // Lastly, We convert 360*° to 360°.
-      return preg_replace('/\*°/', '°', sprintf('%s ... %s', $this->num_or_str($min), $this->num_or_str($max)));
+      //return preg_replace('/\*°/', '°', sprintf('%s ... %s', $this->num_or_str($min), $this->num_or_str($max)));
+      return preg_replace('/\*°/', '°', sprintf('%s ... %s', $min, $max));
     }
   }
 
@@ -501,7 +530,7 @@ function stringify_macro_file($file) {
 // Testing code.
 if (php_sapi_name() == 'cli') {
   error_reporting(E_ALL);
-  //echo stringify_construction_file('geogebra.xml');
-  //exit();
+  echo stringify_construction_file('geogebra.xml');
+  exit();
   //echo stringify_macro_file('geogebra_macro.xml');
 }
