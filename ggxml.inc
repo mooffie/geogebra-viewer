@@ -268,7 +268,7 @@ class GGParser {
         $def = 'new image("' . preg_replace('/^[^\\\\]*./', '', $elt->file['name']) . '")';
         break;
       case 'button':
-        $def = 'new button("' . $elt->caption['val'] . '")';
+        $def = 'Button["' . $elt->caption['val'] . '"]';
         break;
       case 'point3d':
         $coords = array('x' => $this->num_or_str($elt->coords['x']), 'y' => $this->num_or_str($elt->coords['y']), 'z' => $this->num_or_str($elt->coords['z']));
