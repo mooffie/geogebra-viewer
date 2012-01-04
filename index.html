@@ -32,7 +32,7 @@ li {
   border: 1px dashed black;
   font-size: smaller;
   background-color: #f3d699;
-  padding: 0.2em;
+  padding: 0.3em;
 }
 
 </style>
@@ -40,27 +40,30 @@ li {
 
 <h1>GeoGebra thumbnails: bookmarklet</h1>
 
-<p>The GeoGebra forums, and web-pages in general, have a little problem: You have to launch
-GeoGebra to see the .GGB worksheets attached to messages. There's a similar problem with applets. That's a drag
-if you're using a slow computer.</p>
+<p>The GeoGebra forums, and web-pages in general, have a little problem:
+You have to launch GeoGebra to see the .GGB worksheets attached to
+messages. There's a similar problem with applets. That's a drag if
+you're using a slow computer.</p>
 
 <p>This page contains something to alleviate the problem: a
 bookmarklet<sup><a
 href="http://en.wikipedia.org/wiki/Bookmarklet">[?]</a></sup> to show
 you the worksheets' thumbnails (and construction protocol). <strong>Drag the
-following link to your browser's toolbar</strong> (<strong>or bookmark it</strong> with your right
-mouse button). Then, when you're browsing a forum page, or any page containing links to *.ggb files, or a page containing applets, click the button
-to see the thumbnails.</p>
+following link to your browser's toolbar</strong> (<strong>or bookmark it</strong>
+with your right mouse button). Then, when you're browsing a forum page,
+or any page containing links to *.ggb files, or a page containing
+applets, click the button to see the thumbnails.</p>
 
 <p class="blet">
 <a href="javascript:(function(){if(!window.bm_entry){_my_script=document.createElement('SCRIPT');_my_script.type='text/javascript';_my_script.src='http://www.typo.co.il/~mooffie/ggb/bookmarklet-app.js?x='+Math.random();document.getElementsByTagName('head')[0].appendChild(_my_script);}else{alert('The bookmarklet was already used on this page.');}})();">Show GG thumbs</a>
 </p>
 
-<p class="news">
-NEWS: As of 2012-Jan-02, the webmasters of GG's forum have kindly incorporated
-this code into the forum (you'll see a "Show thumbnail" link there). So you no longer need to use this bookmarklet
-there. But it's still useful when you browse other pages on the internet.
-</p>
+<p class="news"><strong>NEWS:</strong> As of 2012-January-02, the
+webmasters of GeoGebra's forum have kindly incorporated this code into
+the forum (you'll see a "<strong>Show thumbnails</strong>" link there).
+So you no longer need to use this bookmarklet there (in fact, you
+can't). But it's still very useful when you browse other pages on the
+internet.</p>
 
 <p>Here's a screenshot of this in action (click to enlarge):</p>
 
@@ -68,12 +71,14 @@ there. But it's still useful when you browse other pages on the internet.
 <a href="blet.png"><img src="blet_th.jpg" /></a>
 </div>
 
-<p>Two things are encircled in red here: the toolbar button, and the thumbnail (+ construction protocol) you get after clicking it.</p>
+<p>Two things are encircled in red here: the toolbar button, and the
+thumbnail (+ construction protocol) you get after clicking it.</p>
 
-<p><a name="applets">For applets</a>, seen below, there's an additional feature: a
-"[download]" link that points to the .ggb file. In other words, you no
-longer have to use your browser's Java system; you can use this link to
-launch your local GeoGebra. (This also works for base64 applets.)</p>
+<p><a name="applets">For applets</a>, seen below, there's an additional
+feature: a "[download]" link that points to the .ggb file. In other
+words, you no longer have to use your browser's Java system; you can use
+this link to launch your local GeoGebra. (This also works for base64
+applets.)</p>
 
 <div class="screenshot">
 <a href="applet.png"><img src="applet_th.jpg" /></a>
@@ -86,14 +91,17 @@ launch your local GeoGebra. (This also works for base64 applets.)</p>
 <li><strong>Thumbnails availability</strong>: This application doesn't
 create the thumbnails itself but extracts the ones created by GeoGebra.
 So if the worksheet was created with an old version of GG (3.01, 2.0,
-etc.) you won't get a thumbnail. Base64 applets too don't have a thumbnail.</li>
+etc.) you won't get a thumbnail. Base64 applets too don't have a
+thumbnail.</li>
 
 <li><strong>Network connectivity</strong>: It's this server (typo.co.il)
-that downloads/analyzes your worksheets, not your browser. So if my 
+that downloads/analyzes your worksheets, not your browser. So if my
 server can't access the worksheet (e.g., if it's behind a login system
 (user name / password)) the operation will fail.</li>
 
-<li>Applets inside an <strong>iframe</strong> aren't recognized.</li>
+<li>Applets inside an <strong>iframe</strong> aren't recognized (A
+workaround: most browsers let you open an iframe in a new tab; click
+with your right mouse button in the frame and see the menu).</li>
 
 </ul>
 
