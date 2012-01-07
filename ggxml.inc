@@ -27,7 +27,16 @@ class GGLine {
   // The GGB type. Used when printing out a macro.
   var $type = NULL;
 
+  /**
+   * param $labels
+  *    An array of labels. Or one label. Or NULL is to not print any labels.
+   */
   function __construct($labels, $definition) {
+    if (!$labels) {
+      $labels = array();
+    } elseif (is_string($labels)) {
+      $labels = array($labels);
+    }
     $this->labels = $labels;
     $this->definition = $definition;
   }
@@ -46,13 +55,11 @@ class GGLine {
       return sprintf("%s.on%s = {\n\n    %s\n\n}", $this->labels[0], ucwords($this->event), join(preg_split('/\n/', trim($this->definition)), "\n    "));
     }
     else {
-      if ($this->is_function_definition()) {
+      if (!$this->labels || $this->is_function_definition()) {
         return $this->pretty_definition();
       }
       else {
-        return ($this->labels
-                 ? (join($this->labels, ', ') . ($this->is_colon ? ': ' : ' = '))
-                 : '') . $this->pretty_definition();
+        return join($this->labels, ', ') . ($this->is_colon ? ': ' : ' = ') . $this->pretty_definition();
       }
     }
   }
@@ -234,7 +241,7 @@ class GGParser {
   }
 
   function handle_expression($elt) {
-    $line = new GGLine(array((string)$elt['label']), (string)$elt['exp']);
+    $line = new GGLine((string)$elt['label'], (string)$elt['exp']);
     $this->cons->add($line);
   }
 
@@ -322,14 +329,14 @@ class GGParser {
         break;
     }
 
-    $line = new GGLine(array((string)$elt['label']), $def);
+    $line = new GGLine((string)$elt['label'], $def);
     $this->cons->add($line);
 
     return $line;
   }
 
   function add_script($elt, $event, $script) {
-    $line = new GGLine(array((string)$elt['label']), $script);
+    $line = new GGLine((string)$elt['label'], $script);
     $line->event = $event;
     $this->cons->add($line);
   }
@@ -384,14 +391,14 @@ class GGParser {
     if ($this->get_slider($elt)) {
       $def = $this->get_slider($elt);
     }
-    $line = new GGLine(array((string)$elt['label'] . '.animate'), $def);
+    $line = new GGLine((string)$elt['label'] . '.animate', $def);
     $line->is_colon = TRUE;
     $this->cons->add($line);
   }
 
   function add_slider($elt) {
     if (($def = $this->get_slider($elt))) {
-      $line = new GGLine(array((string)$elt['label'] . '.slider'), $def);
+      $line = new GGLine((string)$elt['label'] . '.slider', $def);
       $line->is_colon = TRUE;
       $this->cons->add($line);
     }
@@ -451,7 +458,7 @@ class GGParser {
       }
 
       if (!empty($elt->condition['showObject'])) {
-        $line = new GGLine(array(), sprintf('SetConditionToShowObject[%s, %s]', $elt['label'], $elt->condition['showObject']));
+        $line = new GGLine(NULL, sprintf('SetConditionToShowObject[%s, %s]', $elt['label'], $elt->condition['showObject']));
         $this->cons->add($line);
       }
     }
