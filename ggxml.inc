@@ -461,6 +461,17 @@ class GGParser {
         $line = new GGLine(NULL, sprintf('SetConditionToShowObject[%s, %s]', $elt['label'], $elt->condition['showObject']));
         $this->cons->add($line);
       }
+
+      if (!empty($elt->trace['val'])) {
+        if ($elt->trace['val'] == 'true') {
+          $this->cons->add(new GGLine(NULL, sprintf('%s.trace', $elt['label'])));
+        }
+      }
+      if (!empty($elt->spreadsheetTrace['val'])) {
+        if ($elt->spreadsheetTrace['val'] == 'true') {
+          $this->cons->add(new GGLine(NULL, sprintf('%s.recordToSpreadsheet', $elt['label'])));
+        }
+      }
     }
   }
 
