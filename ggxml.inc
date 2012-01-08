@@ -272,7 +272,7 @@ class GGParser {
         $def = $elt->value['val'];
         break;
       case 'image':
-        $def = 'new image("' . preg_replace('/^[^\\\\]*./', '', $elt->file['name']) . '")';
+        $def = 'new image("' . preg_replace('/^[^\\\\\/]*./', '', $elt->file['name']) . '")';
         break;
       case 'button':
         $def = 'Button["' . $elt->caption['val'] . '"]';
