@@ -388,13 +388,11 @@ class GGParser {
   function add_animation($elt) {
      // <slider min="0" max="60" absoluteScreenLocation="true" width="100.0" x="242.0" y="192.0" fixed="true" horizontal="true"/>
      // <animation step="1" speed="Vitesse" type="1" playing="true"/>
-    $def = '';
+    $def = (string)$elt['label'] . '.animate';
     if ($this->get_slider($elt)) {
-      $def = $this->get_slider($elt);
+      $def .= ': ' . $this->get_slider($elt);
     }
-    $line = new GGLine((string)$elt['label'] . '.animate', $def);
-    $line->is_colon = TRUE;
-    $this->cons->add($line);
+    $this->cons->add(new GGLine(NULL, $def));
   }
 
   function add_slider($elt) {
