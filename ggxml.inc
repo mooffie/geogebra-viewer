@@ -101,7 +101,8 @@ class GGConstruction {
    */
   function find_by_label($label) {
     foreach ($this->lines as $line) {
-      if (count($line->labels) == 1 && $line->labels[0] == $label) {
+      // The join() check makes it possible to find "I, , , = Intersect[a, b]" as well.
+      if ($line->labels && $line->labels[0] == $label && join($line->labels, '') == $label) {
         return $line;
       }
     }
