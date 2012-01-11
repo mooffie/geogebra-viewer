@@ -57,9 +57,10 @@ class Paths {
    * Deletes stale output files.
    */
   function gc() {
-    // We delete files older than 7 days (24*7=168 hours).
-    system('find cache/ -mtime +168 -exec rm "{}" \;');
+    // We delete files older than 14 days.
+    system('find cache/ -mtime +14 -exec rm "{}" \;');
+    // If network fetch fails, we retry after 5 minutes.
+    system(sprintf('find cache/ -mmin +5 -name "*.png" -size %dc -exec rm "{}" \;', filesize('message-no-access.png')));
   }
-
 }
 
