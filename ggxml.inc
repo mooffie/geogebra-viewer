@@ -522,34 +522,81 @@ function _GGParser($xml = NULL) {
   return $parser;
 }
 
-function stringify_construction_xml($xml) {
-  return _GGParser($xml)->get_construction()->toString();
-}
 
-function stringify_construction_file($file) {
-  return stringify_construction_xml(simplexml_load_file($file));
-}
+/**
+ * Represents a worksheet (a .ggb or .ggt file).
+ */
+class Worksheet {
 
-function stringify_macro_xml($xml) {
-  $out = '';
-  foreach ($xml->macro as $macro) {
-    $help = (string)$macro['toolHelp'];
-    $inputs = GGUtils::get_args($macro->macroInput);
-    $outputs = GGUtils::get_args($macro->macroOutput);
-    $cons = _GGParser($macro)->get_construction();
-    $out .= $cons->toString_as_macro($macro['cmdName'], $inputs, $outputs, $help) . "\n\n";
+  // The main construction.
+  var $main = NULL;
+  // Macros.
+  var $macros = array();
+  // JavaScript.
+  var $js = '';
+
+  function __construct($files) {
+    $this->load($files);
   }
-  return $out;
+
+  function load($files) {
+    if (!empty($files['main'])) {
+      $xml = simplexml_load_file($files['main']);
+      $this->main = _GGParser($xml)->get_construction();
+    }
+    if (!empty($files['macros'])) {
+      $xml = simplexml_load_file($files['macros']);
+      $this->parse_macros($xml);
+    }
+    if (!empty($files['js'])) {
+      $js = trim(file_get_contents($files['js']));
+      if (substr_count($js, "\n") > 0) {
+        $this->js = $js;
+      }
+    }
+  }
+
+  function parse_macros($xml) {
+    foreach ($xml->macro as $macro) {
+      $this->macros[] = array(
+        'name' => $macro['cmdName'],
+        'help' => (string)$macro['toolHelp'],
+        'inputs' => GGUtils::get_args($macro->macroInput),
+        'outputs' => GGUtils::get_args($macro->macroOutput),
+        'cons' => _GGParser($macro)->get_construction(),
+      );
+    }
+  }
+
+  function stringify() {
+    $out = '';
+    foreach ($this->macros as $macro) {
+      $out .= $macro['cons']->toString_as_macro($macro['name'], $macro['inputs'], $macro['outputs'], $macro['help']) . "\n\n";
+    }
+    if ($this->main) {
+      $out .= $this->main->toString();
+    }
+    if ($this->js) {
+      $out .= "\n/* -------- Global JavaScript: -------- */\n\n$this->js\n";
+    }
+    return $out;
+  }
 }
 
-function stringify_macro_file($file) {
-  return stringify_macro_xml(simplexml_load_file($file));
-}
 
 // Testing code.
 if (php_sapi_name() == 'cli') {
   error_reporting(E_ALL);
-  echo stringify_construction_file('geogebra.xml');
-  exit();
-  //echo stringify_macro_file('geogebra_macro.xml');
+
+  function test1() {
+    $files = array(
+      'main' => 'geogebra.xml',
+      'macros' => 'geogebra_macro.xml',
+      'js' => 'geogebra_javascript.js',
+    );
+    $ws = new Worksheet($files);
+    print $ws->stringify();
+  }
+
+  test1();
 }

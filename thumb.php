@@ -60,21 +60,19 @@ function build_output() {
   //
   // Build the construction protocol.
   //
-  $protocol = '';
+  $worksheet_files = array();
   if (unzip($paths->temp('zip'), 'geogebra_macro.xml', $paths->temp('macro.xml'))) {
-    $protocol .= stringify_macro_file($paths->temp('macro.xml'));
+    $worksheet_files['macros'] = $paths->temp('macro.xml');
   }
   if (unzip($paths->temp('zip'), 'geogebra.xml', $paths->temp('main.xml'))) {
     // Note: .ggt files have only macro.xml.
-    $protocol .= stringify_construction_file($paths->temp('main.xml'));
+    $worksheet_files['main'] = $paths->temp('main.xml');
   }
   if (unzip($paths->temp('zip'), 'geogebra_javascript.js', $paths->temp('js'))) {
-    $js = file_get_contents($paths->temp('js'));
-    if (substr_count(trim($js), "\n") > 0) {
-      $protocol .= "\n/* -------- Global JavaScript: -------- */\n\n$js\n";
-    }
+    $worksheet_files['js'] = $paths->temp('js');
   }
-  file_put_contents($paths->output('txt'), $protocol);
+  $worksheet = new Worksheet($worksheet_files);
+  file_put_contents($paths->output('txt'), $worksheet->stringify());
 }
 
 function output($output_type) {
