@@ -142,23 +142,23 @@ class GGConstruction {
     $out = '';
 
     // Input args.
-	$args = array();
-	foreach ($inputs as $arg) {
-	  if (($line = $this->find_by_label($arg))) {
-	    $args[] = sprintf('%s: %s', $arg, $line->type);
-	  }
-	  else {
-	    $args[] = $arg;
-	  }
-	}
+    $args = array();
+    foreach ($inputs as $arg) {
+      if (($line = $this->find_by_label($arg))) {
+        $args[] = sprintf('%s: %s', $arg, $line->type);
+      }
+      else {
+        $args[] = $arg;
+      }
+    }
 
     // Output args.
-	$return_types = array();
-	foreach ($outputs as $arg) {
-	  if (($line = $this->find_by_label($arg))) {
-	    $return_types[] = $line->type;
-	  }
-	}
+    $return_types = array();
+    foreach ($outputs as $arg) {
+      if (($line = $this->find_by_label($arg))) {
+        $return_types[] = $line->type;
+      }
+    }
 
     if ($help) {
       $out .= "/* $help */\n";
