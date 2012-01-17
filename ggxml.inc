@@ -9,8 +9,64 @@
  *   echo stringify_construction_file('geogebra.xml');
  */
 
+class PlainOutput {
+
+  private $out = '';
+  private $in_macro = FALSE;
+
+  function __construct() {
+  }
+
+  function toString() {
+    return $this->out;
+  }
+
+  function addDefinition($def, $hidden = false) {
+    if ($hidden) {
+      $def = '(' . $def . ')';
+    }
+    if ($this->in_macro) {
+      $def = '  ' . $def;
+    }
+    $this->out .= $def . "\n";
+  }
+
+  function addEmptyLine() {
+    $this->addDefinition('');
+  }
+
+  function addScript($block, $language = 'ggb') {
+    $this->out .= $block;
+  }
+
+  function addEvent($event, $block, $language) {
+    $this->out .= sprintf("%s = {\n\n    %s\n\n}\n", $event, join(preg_split('/\n/', trim($block)), "\n    "));
+  }
+
+  function beginMacro($signature, $help) {
+    if ($help) {
+      $this->addDefinition("/* $help */");
+    }
+    $this->addDefinition($signature);
+    $this->in_macro = TRUE;
+  }
+
+  function endMacro() {
+    $this->in_macro = FALSE;
+    $this->addDefinition('end');
+  }
+
+  static public function stringify($obj) {
+    $output = new self();
+    $obj->write($output);
+    return $output->toString();
+  }
+}
+
 /**
  * Represents a line in a construction protocol (e.g., "c = Max[a, b]").
+ *
+ * It represents either a definition or an event handler.
  */
 class GGLine {
   var $labels = array();
@@ -29,7 +85,7 @@ class GGLine {
 
   /**
    * param $labels
-  *    An array of labels. Or one label. Or NULL is to not print any labels.
+   *    An array of labels. Or one label. Or NULL is to not print any labels.
    */
   function __construct($labels, $definition) {
     if (!$labels) {
@@ -41,7 +97,7 @@ class GGLine {
     $this->definition = $definition;
   }
 
-  function pretty_definition() {
+  function _pretty_definition() {
     // GeoText definitions may have newlines in them. For easier reading, we indent from 2'nd line.
     return preg_replace('/\n/', "\n  ", $this->definition);
   }
@@ -50,33 +106,24 @@ class GGLine {
     return ($this->is_colon && strpos($this->definition, $this->labels[0] . '(') === 0);
   }
 
-  function _toString() {
+  function toString() {
+    return PlainOutput::stringify($this);
+  }
+
+  function write($output) {
     if ($this->event) {
-      return sprintf("%s.on%s = {\n\n    %s\n\n}", $this->labels[0], ucwords($this->event), join(preg_split('/\n/', trim($this->definition)), "\n    "));
+      $title = sprintf('%s.on%s', $this->labels[0], ucwords($this->event)); // E.g., "button1.onClick"
+      $output->addEvent($title, $this->definition, 'ggb');
     }
     else {
       if (!$this->labels || $this->is_function_definition()) {
-        return $this->pretty_definition();
+        $def = $this->_pretty_definition();
       }
       else {
-        return join($this->labels, ', ') . ($this->is_colon ? ': ' : ' = ') . $this->pretty_definition();
+        $def = join($this->labels, ', ') . ($this->is_colon ? ': ' : ' = ') . $this->_pretty_definition();
       }
+      $output->addDefinition($def, $this->is_hidden || $this->is_auxiliary);
     }
-  }
-
-  function toString() {
-    $s = $this->_toString();
-    if ($this->is_hidden || $this->is_auxiliary) {
-      return "($s)";
-    }
-    else {
-      return $s;
-    }
-  }
-
-  // Debugging aid.
-  function prt() {
-    echo $this->toString() . "\n";
   }
 }
 
@@ -122,59 +169,19 @@ class GGConstruction {
   }
 
   function toString() {
-    $out = '';
+    return PlainOutput::stringify($this);
+  }
+
+  function write($output) {
     foreach ($this->lines as $line) {
-      $out .= $line->toString() . "\n";
+      $line->write($output);
     }
     if ($this->version) {
       // I'm removing the "Created with" string. Does GeoGebra 5.0 still show "4.0"?
-      $out .= "\n// File format: GeoGebra $this->version\n";
+      $output->addEmptyLine();
+      $output->addDefinition("// File format: GeoGebra $this->version");
     }
-    return $out;
   }
-
-  /**
-   * Writes out the construction as a macro. Meaning, input and output variable are noted.
-   *
-   * A syntax similar to a Pascal function is used.
-   */
-  function toString_as_macro($name, $inputs, $outputs, $help) {
-    $out = '';
-
-    // Input args.
-    $args = array();
-    foreach ($inputs as $arg) {
-      if (($line = $this->find_by_label($arg))) {
-        $args[] = sprintf('%s: %s', $arg, $line->type);
-      }
-      else {
-        $args[] = $arg;
-      }
-    }
-
-    // Output args.
-    $return_types = array();
-    foreach ($outputs as $arg) {
-      if (($line = $this->find_by_label($arg))) {
-        $return_types[] = $line->type;
-      }
-    }
-
-    if ($help) {
-      $out .= "/* $help */\n";
-    }
-    $out .= sprintf("macro %s(%s) as %s\n", $name, join(', ', $args), join(', ', $return_types));
-    foreach ($this->lines as $line) {
-      if (@in_array($line->labels[0], $inputs)) {
-        continue;
-      }
-      $out .= '  ' . $line->toString() . "\n";
-    }
-    $out .= sprintf("  return %s\n", join(', ', $outputs));
-    $out .= "end";
-    return $out;
-  }
-
 }
 
 /**
@@ -524,6 +531,66 @@ function _GGParser($xml = NULL) {
 
 
 /**
+ * A macro is basically a wrapper around a construction.
+ */
+class Macro {
+
+  var $name;
+  var $inputs;
+  var $outputs;
+  var $help;
+  var $cons;
+
+  function __construct($name, $inputs, $outputs, $help, $cons) {
+    $this->name = $name;
+    $this->inputs = $inputs;
+    $this->outputs = $outputs;
+    $this->help = $help;
+    $this->cons = $cons;
+  }
+
+  /**
+   * Writes out the construction as a macro. Meaning, input and output variable are noted.
+   *
+   * A syntax similar to a Pascal function is used.
+   */
+  function write($output) {
+
+    // Input args.
+    $args = array();
+    foreach ($this->inputs as $arg) {
+      if (($line = $this->cons->find_by_label($arg))) {
+        $args[] = sprintf('%s: %s', $arg, $line->type);
+      }
+      else {
+        $args[] = $arg;
+      }
+    }
+
+    // Output args.
+    $return_types = array();
+    foreach ($this->outputs as $arg) {
+      if (($line = $this->cons->find_by_label($arg))) {
+        $return_types[] = $line->type;
+      }
+    }
+
+    $signature = sprintf("macro %s(%s) as %s", $this->name, join(', ', $args), join(', ', $return_types));
+    $output->beginMacro($signature, $this->help);
+
+    foreach ($this->cons->lines as $line) {
+      if (@in_array($line->labels[0], $this->inputs)) {
+        continue;
+      }
+      $line->write($output);
+    }
+
+    $output->addDefinition(sprintf("return %s", join(', ', $this->outputs)));
+    $output->endMacro();
+  }
+}
+
+/**
  * Represents a worksheet (a .ggb or .ggt file).
  */
 class Worksheet {
@@ -558,28 +625,35 @@ class Worksheet {
 
   function parse_macros($xml) {
     foreach ($xml->macro as $macro) {
-      $this->macros[] = array(
-        'name' => $macro['cmdName'],
-        'help' => (string)$macro['toolHelp'],
-        'inputs' => GGUtils::get_args($macro->macroInput),
-        'outputs' => GGUtils::get_args($macro->macroOutput),
-        'cons' => _GGParser($macro)->get_construction(),
+      $this->macros[] = new Macro(
+        (string)$macro['cmdName'],
+        GGUtils::get_args($macro->macroInput),
+        GGUtils::get_args($macro->macroOutput),
+        (string)$macro['toolHelp'],
+        _GGParser($macro)->get_construction()
       );
     }
   }
 
-  function stringify() {
-    $out = '';
+  function toString() {
+    return PlainOutput::stringify($this);
+  }
+
+  function write($output) {
     foreach ($this->macros as $macro) {
-      $out .= $macro['cons']->toString_as_macro($macro['name'], $macro['inputs'], $macro['outputs'], $macro['help']) . "\n\n";
+      $macro->write($output);
+      $output->addEmptyLine();
     }
     if ($this->main) {
-      $out .= $this->main->toString();
+      $this->main->write($output);
     }
     if ($this->js) {
-      $out .= "\n/* -------- Global JavaScript: -------- */\n\n$this->js\n";
+      $output->addEmptyLine();
+      $output->addDefinition('/* -------- Global JavaScript: -------- */');
+      $output->addEmptyLine();
+      $output->addScript($this->js, 'JavaScript');
+      $output->addEmptyLine();
     }
-    return $out;
   }
 }
 
@@ -595,7 +669,9 @@ if (php_sapi_name() == 'cli') {
       'js' => 'geogebra_javascript.js',
     );
     $ws = new Worksheet($files);
-    print $ws->stringify();
+    $out = new PlainOutput();
+    $ws->write($out);
+    print $out->toString() . "\n";
   }
 
   test1();

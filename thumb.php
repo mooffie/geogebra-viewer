@@ -72,7 +72,7 @@ function build_output() {
     $worksheet_files['js'] = $paths->temp('js');
   }
   $worksheet = new Worksheet($worksheet_files);
-  file_put_contents($paths->output('txt'), $worksheet->stringify());
+  file_put_contents($paths->output('txt'), $worksheet->toString());
 }
 
 function output($output_type) {
