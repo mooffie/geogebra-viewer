@@ -1,0 +1,230 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/ html; charset=UTF-8" />
+<style type="text/css">
+
+body {
+  margin: 0;
+}
+
+pre {
+  font-size: 14px;
+  line-height: 19px;
+  /* font-family: "Monaco", "Courier New", monospace; */
+}
+
+.row {
+  white-space: pre; /* Or else, since its a <div>, Firefox' copy/paste won't preserve the spaces. */
+  padding-left: 16px;
+}
+
+.odd {
+  background-color: #ddd;
+}
+
+/* -------- the button ---------- */
+
+.row-container {
+  /* border: 1px solid red; */
+}
+
+.button {
+  display: inline-block;
+  position: relative;
+  left: -16px;
+  width: 16px;
+  height: 19px;
+  background-position: left center;
+  background-repeat: no-repeat;
+}
+
+.button-wrapper {
+  position: absolute;
+  z-index: 100;
+}
+
+.expanded .button {
+  background-image: url(_icns/minus_circle.png);
+}
+
+.collapsed .button {
+  background-image: url(_icns/plus_circle.png);
+}
+
+.button:hover {
+  background-color: yellow;
+  cursor: pointer;
+}
+
+/* --------- the menu ----------- */
+
+.menu {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 99%;
+  background-color: #888;
+
+  font-size: 14px;
+  line-height: 19px;
+  padding: 5px 0;
+  z-index: 200;
+}
+
+pre {
+  margin-top: 29px; /* The menu height (19 + 2*5) */
+}
+
+.menu ul {
+  padding: 0;
+  margin: 0;
+}
+
+.menu ul li {
+  display: inline;
+  padding: 0 0.6em;
+  border-left: 2px dotted white;
+  color: white;
+}
+
+.menu ul li.first {
+  border-left: none;
+}
+
+.menu .clicker {
+  border-bottom: 1px dotted white;
+  cursor: pointer;
+}
+
+#expand-menuitem, #collapse-menuitem {
+  display: none;
+}
+
+body.is-expanded #collapse-menuitem {
+  display: inline !important;
+}
+
+body.is-collapsed #expand-menuitem {
+  display: inline !important;
+}
+
+/* ------------------------- */
+</style>
+
+<!--[if lt IE 7]>
+<style type="text/css">
+/* Since in IE 6 our menu isn't 'fixed', no need to add equal space at the beginning. */
+pre {
+  margin-top: 0;
+}
+</style>
+<![endif]-->
+
+<script type="text/javascript">
+
+var is_ie = navigator.userAgent.indexOf('MSIE 6') !== -1 || navigator.userAgent.indexOf('MSIE 7') !== -1;
+
+//alert(is_ie);
+
+var fixIE = is_ie
+  ? function(s) {
+      s = s.replace(/  /g, '&nbsp; ');
+      s = s.replace(/\n/g, '<br>');
+      return s;
+    }
+  : function fixIE(s) {
+      return s;
+    }
+;
+
+function getParent(elt, className) {
+  while (elt && elt.tagName && (!elt.className || (' ' + elt.className + ' ').indexOf(' ' + className + ' ') == -1)) {
+    elt = elt.parentNode;
+    if (!elt.tagName) {
+      return null;
+    }
+  }
+  return elt;
+}
+
+function setState(rowId, state) {
+  if (states && states[rowId] && states[rowId][state]) {
+    document.getElementById(rowId).innerHTML = fixIE(states[rowId][state]);
+  }
+}
+
+function initStates() {
+  //alert('initStates');
+
+  for (rowId in states) {
+    if (!states[rowId]['collapsed'] || !states[rowId]['expanded']) {
+      var missing = (states[rowId]['collapsed'] ? 'expanded' : 'collapsed');
+      states[rowId][missing] = document.getElementById(rowId).innerHTML;
+      //alert('filled');
+    }
+  }
+
+  document.getElementById('expand-menuitem').onclick = function() {
+    for (rowId in states) {
+      setState(rowId, 'expanded');
+    }
+    document.body.className = 'is-expanded';
+  }
+  document.getElementById('collapse-menuitem').onclick = function() {
+    for (rowId in states) {
+      setState(rowId, 'collapsed');
+    }
+    document.body.className = 'is-collapsed';
+  }
+}
+
+function btnClicked(e) {
+  // Firefox seems not to have 'srcElement', so we pick 'target' as well.
+  var btn = e.srcElement || e.target || (window.event && window.event.srcElement);
+  if (!btn || btn.className.indexOf('button') == -1) return;
+
+  var container = getParent(btn, 'row-container');
+  if (container) {
+    var rowId = container.getAttribute('id');
+    setState(rowId, getParent(btn, 'expanded') ? 'collapsed' : 'expanded');
+  }
+}
+
+if (window.addEventListener) {
+  window.addEventListener('load', function() {
+    initStates();
+    window.addEventListener('click', function(e) {
+      btnClicked(e);
+    }, false);
+  }, false);
+}
+else {
+  // IE 6.
+  window.attachEvent('onload', function() {
+    initStates();
+    document.attachEvent('onclick', function(e) {
+      btnClicked(e);
+    });
+  });
+}
+
+states = {{STATES}};
+
+</script>
+</head>
+
+<body class="is-{{INITIAL-STATE}}">
+
+<div class="menu">
+<ul>
+<li class="first"><span class="clicker">In new window</span></li>
+<li id="expand-menuitem"><span class="clicker">Expand all</span></li>
+<li id="collapse-menuitem"><span class="clicker">Collapse all</span></li>
+</ul>
+</div>
+
+<pre>
+{{OUTPUT}}
+</pre>
+</body>
+</html>

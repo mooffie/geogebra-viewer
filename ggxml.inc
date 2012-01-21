@@ -9,59 +9,7 @@
  *   echo stringify_construction_file('geogebra.xml');
  */
 
-class PlainOutput {
-
-  private $out = '';
-  private $in_macro = FALSE;
-
-  function __construct() {
-  }
-
-  function toString() {
-    return $this->out;
-  }
-
-  function addDefinition($def, $hidden = false) {
-    if ($hidden) {
-      $def = '(' . $def . ')';
-    }
-    if ($this->in_macro) {
-      $def = '  ' . $def;
-    }
-    $this->out .= $def . "\n";
-  }
-
-  function addEmptyLine() {
-    $this->addDefinition('');
-  }
-
-  function addScript($block, $language = 'ggb') {
-    $this->out .= $block;
-  }
-
-  function addEvent($event, $block, $language) {
-    $this->out .= sprintf("%s = {\n\n    %s\n\n}\n", $event, join(preg_split('/\n/', trim($block)), "\n    "));
-  }
-
-  function beginMacro($signature, $help) {
-    if ($help) {
-      $this->addDefinition("/* $help */");
-    }
-    $this->addDefinition($signature);
-    $this->in_macro = TRUE;
-  }
-
-  function endMacro() {
-    $this->in_macro = FALSE;
-    $this->addDefinition('end');
-  }
-
-  static public function stringify($obj) {
-    $output = new self();
-    $obj->write($output);
-    return $output->toString();
-  }
-}
+require_once './output.inc';
 
 /**
  * Represents a line in a construction protocol (e.g., "c = Max[a, b]").
@@ -113,7 +61,7 @@ class GGLine {
   function write($output) {
     if ($this->event) {
       $title = sprintf('%s.on%s', $this->labels[0], ucwords($this->event)); // E.g., "button1.onClick"
-      $output->addEvent($title, $this->definition, 'ggb');
+      $output->addEvent($title, $this->definition, 'GeoGebra');
     }
     else {
       if (!$this->labels || $this->is_function_definition()) {
@@ -669,9 +617,11 @@ if (php_sapi_name() == 'cli') {
       'js' => 'geogebra_javascript.js',
     );
     $ws = new Worksheet($files);
-    $out = new PlainOutput();
+    //$out = new PlainOutput();
+    $out = new HtmlOutput();
     $ws->write($out);
     print $out->toString() . "\n";
+    file_put_contents('out.html', $out->toString());
   }
 
   test1();
