@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>GeoGebra Formatter</ShortName>
+  <Description>Indents GeoGebra code ("definitions") for easier reading</Description>
+  <Url type="text/html" method="get" template="http://www.typo.co.il/~mooffie/ggb/formatter/?source={searchTerms}"/>
+  <Contact>mooffie@gmail.com</Contact>
+  <Image width="16" height="16">http://mycroft.mozdev.org/updateos.php/id0/geogebra-formatter.ico</Image>
+  <Developer>Mooffie</Developer>
+  <InputEncoding>UTF-8</InputEncoding>
+  <moz:SearchForm>http://www.typo.co.il/~mooffie/ggb/formatter/</moz:SearchForm>
+  <Url type="application/opensearchdescription+xml" rel="self" template="http://mycroft.mozdev.org/updateos.php/id0/geogebra-formatter.xml"/>
+</OpenSearchDescription>

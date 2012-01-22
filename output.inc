@@ -73,10 +73,12 @@ class PlainOutput extends Output {
 
 //////////////////////////////// HTML: ////////////////////////////////////////
 
+require_once './formatter/pp.inc';
+
 // A temporary, dummy highlighter.
 class GGHL {
   static public function doit($s) {
-    return preg_replace('/(\w+)\[/', '<a href="/cmd_$1">$1</a>[' . "\n", htmlspecialchars($s, ENT_NOQUOTES));
+    return preg_replace('/(\w+)\[/', '<a href="http://wiki.geogebra.org/en/$1_Command">$1</a>[', htmlspecialchars($s, ENT_NOQUOTES));
   }
 }
 
@@ -169,10 +171,17 @@ class HtmlOutput extends Output {
       $def = '(' . $def . ')';
     }
 
-    $collapsed = htmlspecialchars($def, ENT_NOQUOTES);
-    $expanded  = GGHL::doit($def);
+    if (strpos($def, '[') !== FALSE || strpos($def, '{') !== FALSE) {
+      $expanded = Formatter::pp(new Scanner($def));
+    }
+    else {
+      $expanded = $def;
+    }
 
-    if ($collapsed != $expanded) {
+    if ($expanded != $def) {
+
+      $collapsed = GGHL::doit($def);
+      $expanded  = GGHL::doit($expanded);
 
       $id = 'row-' . $this->counter;
       $this->out .= '<div class="row-container" id="' . $id . '">';
@@ -195,7 +204,7 @@ class HtmlOutput extends Output {
       $this->out .= '</div>';
     }
     else {
-      $this->addRow($collapsed);
+      $this->addRow(GGHL::doit($def));
     }
   }
 
