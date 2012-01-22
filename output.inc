@@ -123,6 +123,10 @@ class HtmlOutput extends Output {
     return $prolog . $this->out . $epilog;
   }
 
+  /**
+   * param $text
+   *   The text to add. It must be HTML-ready (e.g., after htmlescape()).
+   */
   protected function addRow($text, $extra_classes = '', $include_button = FALSE, $return_only = FALSE) {
 
     $classes = 'row';
@@ -153,6 +157,13 @@ class HtmlOutput extends Output {
     return $out;
   }
 
+  /**
+   * Adds GeoGebra code.
+   *
+   * param $def
+   *   Pure GeoGebra code ("definition"); In other words, do not HTML-escape
+   *   before calling this method.
+   */
   function addDefinition($def, $hidden = false) {
     if ($hidden) {
       $def = '(' . $def . ')';
@@ -184,7 +195,7 @@ class HtmlOutput extends Output {
       $this->out .= '</div>';
     }
     else {
-      $this->addRow($def);
+      $this->addRow($collapsed);
     }
   }
 

@@ -111,7 +111,7 @@ body.is-collapsed #expand-menuitem {
 /* ------------------------- */
 </style>
 
-<!--[if lt IE 7]>
+<!--[if lte IE 6]>
 <style type="text/css">
 /* Since in IE 6 our menu isn't 'fixed', no need to add equal space at the beginning. */
 pre {
@@ -169,13 +169,16 @@ function initStates() {
       setState(rowId, 'expanded');
     }
     document.body.className = 'is-expanded';
-  }
+  };
   document.getElementById('collapse-menuitem').onclick = function() {
     for (rowId in states) {
       setState(rowId, 'collapsed');
     }
     document.body.className = 'is-collapsed';
-  }
+  };
+  document.getElementById('newwindow-menuitem').onclick = function() {
+    window.open(window.location.href);
+  };
 }
 
 function btnClicked(e) {
@@ -217,7 +220,7 @@ states = {{STATES}};
 
 <div class="menu">
 <ul>
-<li class="first"><span class="clicker">In new window</span></li>
+<li id="newwindow-menuitem" class="first"><span class="clicker">In new window</span></li>
 <li id="expand-menuitem"><span class="clicker">Expand all</span></li>
 <li id="collapse-menuitem"><span class="clicker">Collapse all</span></li>
 </ul>

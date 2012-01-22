@@ -27,6 +27,7 @@ class GGLine {
 
   // If set to 'click', 'update' etc., this line describes a script.
   var $event = NULL;
+  var $event_languages = '';
 
   // The GGB type. Used when printing out a macro.
   var $type = NULL;
@@ -61,7 +62,7 @@ class GGLine {
   function write($output) {
     if ($this->event) {
       $title = sprintf('%s.on%s', $this->labels[0], ucwords($this->event)); // E.g., "button1.onClick"
-      $output->addEvent($title, $this->definition, 'GeoGebra');
+      $output->addEvent($title, $this->definition, $this->event_language);
     }
     else {
       if (!$this->labels || $this->is_function_definition()) {
@@ -291,9 +292,10 @@ class GGParser {
     return $line;
   }
 
-  function add_script($elt, $event, $script) {
+  function add_script($elt, $event, $script, $language) {
     $line = new GGLine((string)$elt['label'], $script);
     $line->event = $event;
+    $line->event_language = $language;
     $this->cons->add($line);
   }
 
@@ -398,17 +400,17 @@ class GGParser {
         }
       }
 
-      if (!empty($elt->ggbscript['val'])) {
-        $this->add_script($elt, 'click', $elt->ggbscript['val']);
-      }
-      if (!empty($elt->ggbscript['onUpdate'])) {
-        $this->add_script($elt, 'update', $elt->ggbscript['onUpdate']);
-      }
-      if (!empty($elt->javascript['val'])) {
-        $this->add_script($elt, 'click', $elt->javascript['val']);
-      }
-      if (!empty($elt->javascript['onUpdate'])) {
-        $this->add_script($elt, 'update', $elt->javascript['onUpdate']);
+      // Add event handlers.
+      foreach (array('ggbscript' => 'GeoGebra', 'javascript' => 'JavaScript', 'python' => 'Python') as $slot => $language) {
+        if ($elt->$slot) {
+          $slot = $elt->$slot;
+          if ($slot['val']) {
+            $this->add_script($elt, 'click', $slot['val'], $language);
+          }
+          if ($slot['onUpdate']) {
+            $this->add_script($elt, 'update', $slot['onUpdate'], $language);
+          }
+        }
       }
 
       if (!empty($elt->condition['showObject'])) {
