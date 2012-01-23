@@ -6,10 +6,7 @@ mb_internal_encoding('UTF-8');
 
 // TODO:
 //   - cleanup.
-//   - Ignore 'Element[]' and '{}' inside strings...
 //   - doShift: if we're on the first line (a, b, c, d, ,, = Polygon[]), limit to, say, 20.
-//
-//   - add trailing space to the thumbnails output so it's not easy to skip copying the last ']'.
 
 class Scanner {
 
@@ -138,6 +135,9 @@ class Scanner {
   /**
    * Reads a bracketed/parenthesized expression.
    *
+   * (Quotes delimiting strings too are considered brackets. This makes it easy
+   * in other places.)
+   *
    * @todo: should we return $success if the expr is really balanced
    * (and not terminated just b/c we reached end of string)? No, I think we
    * can ignore that.
@@ -157,7 +157,17 @@ class Scanner {
       }
 
       if ($ch == '"') {
-        $in_string = !$in_string;
+        if (!$in_string) {
+          $level++;
+          $in_string = TRUE;
+        }
+        else {
+          $level--;
+          $in_string = FALSE;
+          if ($level == 0) {
+            $stop = TRUE;
+          }
+        }
       }
 
       if (!$in_string) {
@@ -188,7 +198,9 @@ class Scanner {
 
     $this->setPos(0);
 
-    while (preg_match('/ [\w\d]+\[ | \{ /ux', $this->s, $m, PREG_OFFSET_CAPTURE, $this->getPos())) {
+    // We look for the start of a command, a list or a string, and then read
+    // it with $this->readBracketsExpr().
+    while (preg_match('/ [\w\d]+\[ | \{ | " /ux', $this->s, $m, PREG_OFFSET_CAPTURE, $this->getPos())) {
       $where = $m[0][1];
       // @todo: Warning: is it safe to assume $where is a binary offest?
 
@@ -242,7 +254,7 @@ class Formatter {
     foreach ($parts as $part) {
       $pp = $part->pp();
       // For explanation, see documentation for $doShift.
-      if (Formatter::$doShift && strpos($pp, "\n") !== FALSE) {
+      if (Formatter::$doShift && strpos($pp, "\n") !== FALSE && $part->can_indent()) {
         $pp = S_Utils::indent($pp, str_repeat(' ', mb_strlen(S_Utils::lastLine($s))), TRUE);
       }
       $s .= $pp;
@@ -291,6 +303,13 @@ class S_Part {
       return new S_List($s);
     }
     return new S_Bin($s);
+  }
+
+  /**
+   * Whether the formatter may insert spaces inside this part to indent it.
+   */
+  function can_indent() {
+    return TRUE;
   }
 }
 
@@ -441,6 +460,16 @@ class S_List extends S_Command {
  * between and inside. We treat it as "binary" and print it as-is.
  */
 class S_Bin extends S_Part {
+
+  /**
+   * Override base. Tell the formatter not to indent us.
+   *
+   * We do this because strings, which are S_Bin, may contain embeded
+   * newlines, which we don't want to treat in any special way.
+   */
+  function can_indent() {
+    return FALSE;
+  }
 }
 
 
@@ -522,7 +551,7 @@ class S_Utils {
       $def = '';
       for(;;) {
         $rest_of_line = $scn->peekLine();
-        if (preg_match('/[{([]/', $rest_of_line)) {
+        if (preg_match('/[{([]"/', $rest_of_line)) {
           $def .= $scn->readBracketsExpr();
         }
         else {

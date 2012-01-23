@@ -39,6 +39,14 @@ $cmd = 'liste1 = If[y(C - B) * y(B - A) > 0, {G, B, K}, {E, B, J}]';
 $cmd = 'l3 = Sequence[Beziers[Element[l2, k], Element[l2, k + 1], Element[l2, k + 2], Element[l2, k + 3]], k, 1, Length[l2] - 3, 3]';
 $cmd = 'liste1 = If[y(C - B) * y(B - A) > 0, {G, B, If[Defined[x(Element[liste2, 1])], Element[liste2, 1], If[Defined[x(Element[liste2, 2])], Element[liste2, 2], (0, 0)]]}, {E, B, J}]'; /**/
 
+$cmd = <<<'EOS'
+text1 = "$\scalebox{" + (LaTeX[TextSize]) + "}
+  \text {The agricultural output of a kibbutz in Israel is limited by both}$
+  $\scalebox{" + (LaTeX[TextSize]) + "}
+  \text {the amount of available irrigable land and by the quantity of }$
+  $\scalebox{" + (LaTeX[TextSize]) + "}
+  \text {water allocated for irrigation by the regional Water Commissioner.}$"
+EOS;
 
 $scn = new Scanner($cmd);
 print Formatter::pp($scn, TRUE) . "\n";
