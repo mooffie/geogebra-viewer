@@ -74,13 +74,7 @@ class PlainOutput extends Output {
 //////////////////////////////// HTML: ////////////////////////////////////////
 
 require_once './formatter/pp.inc';
-
-// A temporary, dummy highlighter.
-class GGHL {
-  static public function doit($s) {
-    return preg_replace('/(\w+)\[/', '<a href="http://wiki.geogebra.org/en/$1_Command">$1</a>[', htmlspecialchars($s, ENT_NOQUOTES));
-  }
-}
+require_once './highlighter.inc';
 
 /**
  * Writes the output as HTML.
@@ -180,8 +174,8 @@ class HtmlOutput extends Output {
 
     if ($expanded != $def) {
 
-      $collapsed = GGHL::doit($def);
-      $expanded  = GGHL::doit($expanded);
+      $collapsed = Highlighter_GG::run($def);
+      $expanded  = Highlighter_GG::run($expanded);
 
       $id = 'row-' . $this->counter;
       $this->out .= '<div class="row-container" id="' . $id . '">';
@@ -204,7 +198,7 @@ class HtmlOutput extends Output {
       $this->out .= '</div>';
     }
     else {
-      $this->addRow(GGHL::doit($def));
+      $this->addRow(Highlighter_GG::run($def));
     }
   }
 
@@ -227,9 +221,11 @@ class HtmlOutput extends Output {
   function addEvent($event, $block, $language) {
     $this->addDefinition("$event = {");
     $this->addIndent();
+    $this->addIndent();
     $this->addEmptyLine();
     $this->addScript($block, $language);
     $this->addEmptyLine();
+    $this->removeIndent();
     $this->removeIndent();
     $this->addDefinition("}");
   }
