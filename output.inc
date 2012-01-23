@@ -214,7 +214,7 @@ class HtmlOutput extends Output {
       }
     }
     else {
-      $this->addRow(htmlspecialchars($block));
+      $this->addRow(($language == 'JavaScript') ? Highlighter_JS::run($block) : htmlspecialchars($block));
     }
   }
 
