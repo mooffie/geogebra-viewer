@@ -40,7 +40,7 @@ function bm_entry() {
     iframe.style.minWidth = '300px';
     iframe.width = '50%';
     iframe.height = '300';
-    iframe.src = serviceUrl(url, 'txt');
+    iframe.src = serviceUrl(url, 'html'); // Can be either 'html' or 'txt', the latter for plain text.
     iframe.style.display = 'none';
 
     var link = document.createElement('span');

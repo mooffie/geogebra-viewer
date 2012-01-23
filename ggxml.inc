@@ -626,5 +626,5 @@ if (php_sapi_name() == 'cli') {
     file_put_contents('out.html', $out->toString());
   }
 
-  test1();
+  //test1();
 }
