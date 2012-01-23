@@ -6,7 +6,6 @@ mb_internal_encoding('UTF-8');
 
 // TODO:
 //   - cleanup.
-//   - doShift: if we're on the first line (a, b, c, d, ,, = Polygon[]), limit to, say, 20.
 
 class Scanner {
 
@@ -255,7 +254,15 @@ class Formatter {
       $pp = $part->pp();
       // For explanation, see documentation for $doShift.
       if (Formatter::$doShift && strpos($pp, "\n") !== FALSE && $part->can_indent()) {
-        $pp = S_Utils::indent($pp, str_repeat(' ', mb_strlen(S_Utils::lastLine($s))), TRUE);
+        $column = mb_strlen(S_Utils::lastLine($s));
+        if ($column > 40 && strpos($s, "\n") === FALSE) {
+          // Make sure lines following the first line (which is the definition
+          // line: "a = ") aren't indented too much. That's because we don't
+          // want to make the user scroll (horizontally) too much on
+          // "a, b, c, ... = Polygon[]" lines.
+          $column = 40;
+        }
+        $pp = S_Utils::indent($pp, str_repeat(' ', $column), TRUE);
       }
       $s .= $pp;
     }
