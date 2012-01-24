@@ -9,8 +9,24 @@ body {
 }
 
 pre {
-  font-size: 14px;
-  line-height: 19px;
+
+  font-size: 12px;
+  line-height: 17px;
+
+  /* For a larger font, use:
+
+      font-size: 14px;
+      line-height: 19px;
+
+    (and don't forget to update the .button class height as well.)
+
+    For comparison, here's the <pre> metrics of common browsers:
+
+      opera: 13px
+      firefox: 12px / 15.5833px
+      chrome: 13px
+  */
+
   /* font-family: "Monaco", "Courier New", monospace; */
 }
 
@@ -38,7 +54,7 @@ pre {
   position: relative;
   left: -16px;
   width: 16px;
-  height: 19px;
+  height: 17px;
   background-position: left center;
   background-repeat: no-repeat;
 }
@@ -78,6 +94,7 @@ pre {
 
 pre {
   margin-top: 29px; /* The menu height (19 + 2*5) */
+  margin-bottom: 0;
 }
 
 .menu ul {
