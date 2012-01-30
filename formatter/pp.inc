@@ -358,9 +358,13 @@ class S_Command extends S_Part {
 
   /**
    * Returns TRUE is this is a "simple" command. That is, if we shouldn't split it into several lines.
+   *
+   * Currently, "simple" commands are those that don't contain other commands or lists.
    */
   function isSimple() {
-    return (strpos($this->raw_args, '[') === FALSE && strpos($this->raw_args, '{') === FALSE && strlen($this->raw_args) < 50);
+    // We use preg_match to check for existance of lists because simply doing
+    // strpos($this->raw_args, '{') will pick up indices as well (e.g. "A_{10}").
+    return (strpos($this->raw_args, '[') === FALSE && !preg_match('/ ^\{ | [^_]\{ /x', $this->raw_args) && strlen($this->raw_args) < 50);
   }
 
   /**
