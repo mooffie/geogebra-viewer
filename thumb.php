@@ -48,6 +48,10 @@ function build_output() {
     if (!unzip($paths->temp('zip'), 'geogebra_thumbnail.png', $paths->output('png'))) {
       // Some worksheets don't have a thumbnail: GG 3.0 files, base64 encoded applets, and .ggt files.
       copy('message-no-thumbnail.png', $paths->output('png'));
+
+      // Perhaps we downloaded a partial file? Save the .ggb for debugging purposes.
+      // @todo: REMOVE.
+      copy($paths->temp('zip'), $paths->output('ggb.debug'));
     }
     if ($is_base64) {
       // Make a copy of a base64 applet .ggb so we can have a download link.

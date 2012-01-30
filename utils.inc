@@ -70,9 +70,23 @@ function download_worksheet($url, $destination) {
 
 /**
  * Verifies a zip file.
+ *
+ * For implementation, see http://en.wikipedia.org/wiki/Zip_(file_format)
  */
 function is_valid_zip($path) {
-  return file_exists($path) && file_get_contents($path, FALSE, NULL, 0, 2) == 'PK';
+  if (file_exists($path)) {
+    // Look for the "local file header".
+    if (file_get_contents($path, FALSE, NULL, 0, 4) != "PK\x03\x04") {
+      return FALSE;
+    }
+    // Look for "end of central directory record" in last 512 bytes of file.
+    $ending = file_get_contents($path, FALSE, NULL, max(0, filesize($path) - 512));
+    if (strpos($ending, "PK\x05\x06") === FALSE) {
+      return FALSE;
+    }
+    return TRUE;
+  }
+  return FALSE;
 }
 
 // Testing code.
