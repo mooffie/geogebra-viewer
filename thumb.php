@@ -95,7 +95,7 @@ function main() {
 
   if (!DBG && file_exists($paths->output('png'))) {
     // A cached output exists.
-    output($output_type);
+    output($paths, $output_type);
   }
   else {
     build_output($paths);
@@ -109,42 +109,6 @@ if (php_sapi_name() != 'cli') {
   main();
 }
 else {
-
-  function build_output_multiple($urls) {
-    $i = 1;
-    foreach ($urls as $url) {
-      $paths = new Paths($url);
-      print sprintf("Processing %s ... [%d/%d]\n", $url, $i++, count($urls));
-      // Delete previous output in case we don't have permission to overwrite these files:
-      foreach (glob(str_replace('.dummy', '.*', $paths->output('dummy'))) as $file) {
-        unlink($file);
-      }
-      build_output($paths);
-    }
-  }
-
-  if ($argc == 1) {
-    print "Syntax: thumb.php [ --all | URL ... ]\n";
-  }
-  elseif ($argv[1] == '--all') {
-    // Re-process all the URLs I've even seen.
-    $dummy_paths = new Paths('dummy');
-    $cache_dir = dirname($dummy_paths->output('dummy'));
-    $url_files = glob($cache_dir . '/*.url');
-    if (!$url_files) {
-      print "No *.url files were found in $cache_dir/ . Nothing to do.\n";
-    }
-    else {
-      $urls = array();
-      foreach ($url_files as $fname) {
-        $urls[] = file_get_contents($fname);
-      }
-      build_output_multiple($urls);
-    }
-  }
-  else {
-    // URL(s) are on the command line.
-    array_shift($argv);
-    build_output_multiple($argv);
-  }
+  require_once './thumb.commandline.inc';
+  main_commandline();
 }
