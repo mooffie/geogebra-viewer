@@ -10,7 +10,7 @@ abstract class Output {
   abstract function addEmptyLine();
   abstract function addScript($block, $language);
   abstract function addEvent($event, $block, $language);
-  abstract function beginMacro($signature, $help);
+  abstract function beginMacro($name, $signature, $help);
   abstract function endMacro();
 }
 
@@ -51,7 +51,7 @@ class PlainOutput extends Output {
     $this->out .= sprintf("%s = {\n\n    %s\n\n}\n", $event, join(explode("\n", trim($block)), "\n    "));
   }
 
-  function beginMacro($signature, $help) {
+  function beginMacro($name, $signature, $help) {
     if ($help) {
       $this->addDefinition("/* $help */");
     }
@@ -230,7 +230,9 @@ class HtmlOutput extends Output {
     $this->addDefinition("}");
   }
 
-  function beginMacro($signature, $help) {
+  function beginMacro($name, $signature, $help) {
+    $this->out .= sprintf('<div class="macro" id="macro__%s">', $name);
+    Highlighter_GG::add_macro_name($name);
     if ($help) {
       $this->addDefinition("/* $help */");
     }
@@ -241,6 +243,7 @@ class HtmlOutput extends Output {
   function endMacro() {
     $this->removeIndent();
     $this->addDefinition('end');
+    $this->out .= '</div>';
   }
 
   static public function stringify($obj) {

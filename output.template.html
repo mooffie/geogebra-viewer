@@ -91,7 +91,7 @@ pre {
   position: fixed;
   left: 0;
   top: 0;
-  width: 99%;
+  width: 100%;
   background-color: #888;
 
   font-size: 14px;
@@ -164,6 +164,10 @@ body.is-collapsed #expand-menuitem {
   color: #0066ff !important; /* For both visited and unvisited links. */
 }
 
+.syn-command.custom {
+  font-weight: bold;
+}
+
 .syn-js-string {
   color: #ff00ff;
 }
@@ -189,7 +193,11 @@ pre {
 
 <script type="text/javascript">
 
-var is_ie = navigator.userAgent.indexOf('MSIE 6') !== -1 || navigator.userAgent.indexOf('MSIE 7') !== -1;
+//var is_ie = navigator.userAgent.indexOf('MSIE 6') !== -1 || navigator.userAgent.indexOf('MSIE 7') !== -1;
+// I don't know which IE version is affected by the "no whitespace preserved in innerHTML" bug, so we include all of them:
+//var is_ie = navigator.userAgent.indexOf('MSIE') !== -1;
+// Temporarily check the hack on all browsers:
+var is_ie = true;
 
 //alert(is_ie);
 

@@ -9,6 +9,12 @@ abstract class Highlighter {
  */
 class Highlighter_GG extends Highlighter {
 
+  static private $macro_names = array();
+
+  static public function add_macro_name($name) {
+    self::$macro_names[$name] = TRUE;
+  }
+
   static public function run($s) {
     // @todo: optimize for cases where only commands are present.
     //return preg_replace('/(\w+)\[/', '<a href="http://wiki.geogebra.org/en/$1_Command">$1</a>[', htmlspecialchars($s, ENT_NOQUOTES));
@@ -24,7 +30,7 @@ class Highlighter_GG extends Highlighter {
       }
       elseif (substr($part, -1) == '[') {
         $cmd = substr($part, 0, -1);
-        $res .= sprintf('<a href="http://wiki.geogebra.org/en/%s_Command" target="_blank" class="syn-command">%s</a>[', $cmd, $cmd);
+        $res .= self::command_link($cmd) . '[';
       }
       else {
         $res .= htmlspecialchars($part);
@@ -32,6 +38,20 @@ class Highlighter_GG extends Highlighter {
     }
 
     return $res;
+  }
+
+  static protected function command_link($cmd) {
+    if (isset(self::$macro_names[$cmd])) {
+      $extra_class = 'custom';
+      $url = '#macro__' . $cmd;
+      $target = '_self';
+    }
+    else {
+      $extra_class = 'standard';
+      $url = sprintf('http://wiki.geogebra.org/en/%s_Command', $cmd);
+      $target = '_blank';
+    }
+    return sprintf('<a href="%s" target="%s" class="syn-command %s">%s</a>', $url, $target, $extra_class, $cmd);
   }
 
 }

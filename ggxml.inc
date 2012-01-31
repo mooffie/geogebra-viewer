@@ -526,7 +526,7 @@ class Macro {
     }
 
     $signature = sprintf("macro %s(%s) as %s", $this->name, join(', ', $args), join(', ', $return_types));
-    $output->beginMacro($signature, $this->help);
+    $output->beginMacro($this->name, $signature, $this->help);
 
     foreach ($this->cons->lines as $line) {
       if (@in_array($line->labels[0], $this->inputs)) {
