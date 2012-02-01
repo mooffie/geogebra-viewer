@@ -179,7 +179,7 @@ if (!empty($_REQUEST['fetch'])) {
       $source = "This URL seems invalid.";
     }
     else {
-      $service = sprintf('http://www.typo.co.il/~mooffie/ggb/thumb.php?url=%s&output_type=txt', urlencode($url));
+      $service = sprintf('http://www.typo.co.il/~mooffie/ggb/thumb.php?url=%s&output_type=plain', urlencode($url));
       if (!($source = @file_get_contents($service))) {
         $source = "This doesn't look like a GeoGebra file.\nMake sure you typed the URL correctly.";
       }

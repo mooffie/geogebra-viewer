@@ -15,6 +15,19 @@ require_once './utils.inc';
 $url         = empty($_GET['url'])         ? ''    : $_GET['url'];
 $output_type = empty($_GET['output_type']) ? 'png' : $_GET['output_type'];
 
+// -- start of hack to enable HTML till it's official --
+if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+  if (strpos($_SERVER['HTTP_ACCEPT_LANGUAGE'], 'yi') !== FALSE) {
+    if ($output_type == 'txt') {
+      $output_type = 'html';
+    }
+  }
+}
+if ($output_type == 'plain') {
+  $output_type = 'txt';
+}
+// -- end of hack --
+
 if (empty($url)) { // Debug run.
   define('DBG', TRUE);
   $url = 'zz.ggb';
