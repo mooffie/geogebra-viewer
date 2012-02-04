@@ -39,7 +39,6 @@ pre {
  */
 
 .row {
-  white-space: pre; /* Or else, since its a <div>, Firefox' copy/paste won't preserve the spaces. */
   padding-left: 16px;
 }
 
@@ -193,25 +192,6 @@ pre {
 
 <script type="text/javascript">
 
-//var is_ie = navigator.userAgent.indexOf('MSIE 6') !== -1 || navigator.userAgent.indexOf('MSIE 7') !== -1;
-// I don't know which IE version is affected by the "no whitespace preserved in innerHTML" bug, so we include all of them:
-//var is_ie = navigator.userAgent.indexOf('MSIE') !== -1;
-// Temporarily check the hack on all browsers:
-var is_ie = true;
-
-//alert(is_ie);
-
-var fixIE = is_ie
-  ? function(s) {
-      s = s.replace(/  /g, '&nbsp; ');
-      s = s.replace(/\n/g, '<br>');
-      return s;
-    }
-  : function fixIE(s) {
-      return s;
-    }
-;
-
 function getParent(elt, className) {
   while (elt && elt.tagName && (!elt.className || (' ' + elt.className + ' ').indexOf(' ' + className + ' ') == -1)) {
     elt = elt.parentNode;
@@ -224,7 +204,7 @@ function getParent(elt, className) {
 
 function setState(rowId, state) {
   if (states && states[rowId] && states[rowId][state]) {
-    document.getElementById(rowId).innerHTML = fixIE(states[rowId][state]);
+    document.getElementById(rowId).innerHTML = states[rowId][state];
   }
 }
 

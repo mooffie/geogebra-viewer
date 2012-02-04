@@ -609,7 +609,7 @@ class Worksheet {
 
 
 // Testing code.
-if (0 && php_sapi_name() == 'cli') {
+if (1 && php_sapi_name() == 'cli') {
   error_reporting(E_ALL);
 
   function test1() {

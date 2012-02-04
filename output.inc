@@ -145,6 +145,15 @@ class HtmlOutput extends Output {
 
     $out = "<div class='$classes'>" . $text . "\n</div>";
 
+    // Sheesh! It turns out some browsers can't keep spaces (when copying to
+    // clipboard, at least) inside a <pre><div></div></pre> (even when we use
+    // style 'white-space: pre' on the div), so we have to escape it for them.
+    // (Culprits: IE, Firefox; Sages: Opera, Chrome.)
+    $out = preg_replace_callback('/  +/', create_function('$m', 'return str_repeat("\\xC2\\xA0", strlen($m[0]));'), $out);
+    // Unfortunately, IE won't preserve the newlines on clipboard copying even
+    // with the following line.
+    $out = preg_replace('/\n(?!<\/div>)/', '<br />', $out);
+
     if (!$return_only) {
       $this->out .= $out;
       $this->counter++;
