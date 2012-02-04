@@ -87,21 +87,30 @@ pre {
 /* --------- the menu ----------- */
 
 .menu {
-  position: fixed;
-  left: 0;
-  top: 0;
   width: 100%;
   background-color: #888;
-
   font-size: 14px;
   line-height: 19px;
   padding: 5px 0;
-  z-index: 200;
 }
 
 pre {
-  margin-top: 29px; /* The menu height (19 + 2*5) */
+  margin-top: 0;
   margin-bottom: 0;
+}
+
+/**
+ * IE 7/8 hides "position: fixed" elements so we use it only
+ * if our JavaScript code detected support for this.
+ */
+html.supports-fixed .menu {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 200;
+}
+html.supports-fixed pre {
+  margin-top: 29px !important; /* The menu height (19 + 2*5) */
 }
 
 .menu ul {
@@ -180,16 +189,6 @@ body.is-collapsed #expand-menuitem {
 }
 
 </style>
-
-<!--[if lte IE 6]>
-<style type="text/css">
-/* Since in IE 6 our menu isn't 'fixed', no need to add equal space at the beginning. */
-pre {
-  margin-top: 0;
-}
-</style>
-<![endif]-->
-
 <script type="text/javascript">
 
 function getParent(elt, className) {
@@ -208,15 +207,35 @@ function setState(rowId, state) {
   }
 }
 
-function initStates() {
-  //alert('initStates');
+/**
+ * Detects whether the browser supports fixed positioning.
+ *
+ * Code taken from 'drupal.js'
+ */
+function supportsFixed() {
+  var el = document.createElement('div');
+  el.innerHTML = '<div style="position:fixed; top:10px" />';
+  document.body.appendChild(el);
+  // In Opera 'offsetTop' is zero, so we check for Opera explicitly.
+  var success = (el.firstChild.offsetTop === 10 || navigator.userAgent.indexOf('Opera') !== -1);
+  document.body.removeChild(el);
+  return success;
+}
 
+function initialize() {
+  //alert('initialize');
+
+  // Fill out missing states, if any, from the HTML itself.
   for (rowId in states) {
     if (!states[rowId]['collapsed'] || !states[rowId]['expanded']) {
       var missing = (states[rowId]['collapsed'] ? 'expanded' : 'collapsed');
       states[rowId][missing] = document.getElementById(rowId).innerHTML;
       //alert('filled');
     }
+  }
+
+  if (supportsFixed()) {
+    document.body.parentNode.className = 'supports-fixed';
   }
 
   document.getElementById('expand-menuitem').onclick = function() {
@@ -250,7 +269,7 @@ function btnClicked(e) {
 
 if (window.addEventListener) {
   window.addEventListener('load', function() {
-    initStates();
+    initialize();
     window.addEventListener('click', function(e) {
       btnClicked(e);
     }, false);
@@ -259,7 +278,7 @@ if (window.addEventListener) {
 else {
   // IE 6.
   window.attachEvent('onload', function() {
-    initStates();
+    initialize();
     document.attachEvent('onclick', function(e) {
       btnClicked(e);
     });
