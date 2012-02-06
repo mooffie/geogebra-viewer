@@ -127,7 +127,9 @@ class GGConstruction {
     }
     if ($this->version) {
       // I'm removing the "Created with" string. Does GeoGebra 5.0 still show "4.0"?
-      $output->addEmptyLine();
+      if ($this->lines) {
+        $output->addEmptyLine();
+      }
       $output->addDefinition("// File format: GeoGebra $this->version");
     }
   }
