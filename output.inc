@@ -93,11 +93,11 @@ class HtmlOutput extends Output {
   private $initial_state = 'collapsed'; // You may change to 'expanded'.
   private $js_states = array();
 
-  // Ideally we wouldn't have to store in $js_states what's already in
-  // the HTML, but IE 6 doesn't let us read the HTML with high-fidelity:
-  // newlines/spaces are squashed. So we have store in $js_states
-  // everything.
-  private $handle_ie_bug = TRUE;
+  // Ideally, to conserve space, we wouldn't have to store in $js_states
+  // the state that's already in the HTML. However, some browsers (IE) are
+  // buggy and don't let us read the HTML with high-fidelity: newlines/spaces
+  // are squashed. So we have store in $js_states both states.
+  private $send_both_states = FALSE;
 
   protected function addIndent() {
     $this->indent++;
@@ -192,14 +192,14 @@ class HtmlOutput extends Output {
       if ($this->initial_state == 'expanded') {
         $this->js_states[$id]['collapsed'] = $this->addRow($collapsed, 'collapsed', TRUE, TRUE);
         $this->js_states[$id]['expanded']  = $this->addRow($expanded, 'expanded', TRUE);
-        if (!$this->handle_ie_bug) {
+        if (!$this->send_both_states) {
           unset($this->js_states[$id]['expanded']);
         }
       }
       else {
         $this->js_states[$id]['expanded']  = $this->addRow($expanded, 'expanded', TRUE, TRUE);
         $this->js_states[$id]['collapsed'] = $this->addRow($collapsed, 'collapsed', TRUE);
-        if (!$this->handle_ie_bug) {
+        if (!$this->send_both_states) {
           unset($this->js_states[$id]['collapsed']);
         }
       }
