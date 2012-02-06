@@ -75,7 +75,7 @@ class Highlighter_JS extends Highlighter {
       else {
         $html = htmlspecialchars($part);
         $html = preg_replace('/\b(?:break|case|catch|continue|default|delete|do|else|false|for|function|if|in|new|null|return|switch|this|throw|true|try|typeof|var|void|while|with)\b/', '<span class="syn-js-keyword-1">$0</span>', $html);
-        $html = preg_replace('/\b(?:ggbApplet|evalCommand|getValue|setValue)\b/', '<span class="syn-js-keyword-2">$0</span>', $html);
+        $html = preg_replace('/\b(?:ggbApplet|evalCommand|setUndoPoint|deleteObject|setValue|setCoords|setColor|setVisible|setLabelVisible|setLabelStyle|setFixed|setTrace|renameObject|setLayer|setLayerVisible|setLineStyle|setLineThickness|setPointStyle|setPointSize|setFilling|getPNGBase64|writePNGtoFile|isIndependent|isMoveable|getBase64|setBase64|setAnimating|setAnimationSpeed|startAnimation|stopAnimation|isAnimationRunning|getXcoord|getYcoord|getValue|getColor|getVisible|getValueString|getDefinitionString|getCommandString|getObjectType|exists|isDefined|getObjectNumber|getObjectName|getLayer|getLineStyle|getLineThickness|getPointStyle|getPointSize|getFilling|setMode|openFile|reset|refreshViews|setCoordSystem|setAxesVisible|setGridVisible|registerAddListener|registerRemoveListener|registerUpdateListener|registerObjectUpdateListener|registerRenameListener|registerClearListener|evalXML|setXML|getXML|getXML|getAlgorithmXML)\b/', '<span class="syn-js-keyword-2">$0</span>', $html);
         $res .= $html;
       }
     }
