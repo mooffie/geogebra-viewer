@@ -10,25 +10,37 @@ function build_output_multiple($urls) {
       unlink($file);
     }
     build_output($paths);
+    $paths->delete_temps();
   }
+}
+
+function _get_cache_dir() {
+  $dummy_paths = new Paths('dummy');
+  return dirname($dummy_paths->output('dummy'));
 }
 
 function main_commandline() {
   global $argc, $argv;
 
   if ($argc == 1) {
-    print "Syntax: thumb.php [ --all | URL ... ]\n";
+    print "Syntax: thumb.php [ --redo | --clear | URL ... ]\n";
   }
-  elseif ($argv[1] == '--all') {
-    // Re-process all the URLs I've even seen.
-    $dummy_paths = new Paths('dummy');
-    $cache_dir = dirname($dummy_paths->output('dummy'));
+  elseif ($argv[1] == '--redo') {
+    // Re-process all the URLs I've ever seen.
+    $cache_dir = _get_cache_dir();
     $urls = array_map('file_get_contents', glob($cache_dir . '/*.url'));
     if (!$urls) {
       print "No *.url files were found in $cache_dir/ . Nothing to do.\n";
     }
     else {
       build_output_multiple($urls);
+    }
+  }
+  elseif ($argv[1] == '--clear') {
+    // Clear the cache folder.
+    $cache_dir = _get_cache_dir();
+    foreach (glob($cache_dir . '/*') as $file) {
+      unlink($file);
     }
   }
   else {
