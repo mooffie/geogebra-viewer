@@ -24,10 +24,19 @@ class Paths {
   }
 
   /**
-   * Returns path to an output file.
+   * Returns path to an output file, given an extension.
    */
   function output($ext) {
-    return 'cache/' . $this->output_base() . '.' . $ext;
+    return self::_output($this->output_base() . '.' . $ext);
+  }
+
+  /**
+   * Returns path to an output file, given a filename.
+   *
+   * This is a static method.
+   */
+  public static function _output($filename) {
+    return 'cache/' . $filename;
   }
 
   /**

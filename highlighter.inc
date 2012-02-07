@@ -48,7 +48,7 @@ class Highlighter_GG extends Highlighter {
     }
     else {
       $extra_class = 'standard';
-      $url = sprintf('http://wiki.geogebra.org/en/%s_Command', $cmd);
+      $url = Commands::wiki($cmd);
       $target = '_blank';
     }
     return sprintf('<a href="%s" target="%s" class="syn-command %s">%s</a>', $url, $target, $extra_class, $cmd);

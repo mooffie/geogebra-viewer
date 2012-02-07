@@ -9,6 +9,7 @@
  *   echo stringify_construction_file('geogebra.xml');
  */
 
+require_once './commands.inc';
 require_once './output.inc';
 
 /**
@@ -46,9 +47,9 @@ class GGLine {
     $this->definition = $definition;
   }
 
-  function _pretty_definition() {
+  function pretty_definition() {
     // GeoText definitions may have newlines in them. For easier reading, we indent from 2'nd line.
-    return preg_replace('/\n/', "\n  ", $this->definition);
+    return preg_replace('/\n/', "\n  ", $this->fixed_definition());
   }
 
   function is_function_definition() {
@@ -59,17 +60,31 @@ class GGLine {
     return PlainOutput::stringify($this);
   }
 
+  function fixed_definition() {
+    if (!$this->event || $this->event_language == 'GeoGebra') {
+      $expr = $this->definition;
+      // Converts "x^(2.0)" to "x^2"
+      $expr = preg_replace('/\^\((\d+)(\.0+)?\)/', '^$1', $expr);
+      // Converts "CurveCartesian[]" to "Curve[]"
+      $expr = preg_replace('/(\w+)(?=\[)/e', 'Commands::english("$1")', $expr);
+      return $expr;
+    }
+    else {
+      return $this->definition;
+    }
+  }
+
   function write($output) {
     if ($this->event) {
       $title = sprintf('%s.on%s', $this->labels[0], ucwords($this->event)); // E.g., "button1.onClick"
-      $output->addEvent($title, $this->definition, $this->event_language);
+      $output->addEvent($title, $this->fixed_definition(), $this->event_language);
     }
     else {
       if (!$this->labels || $this->is_function_definition()) {
-        $def = $this->_pretty_definition();
+        $def = $this->pretty_definition();
       }
       else {
-        $def = join($this->labels, ', ') . ($this->is_colon ? ': ' : ' = ') . $this->_pretty_definition();
+        $def = join($this->labels, ', ') . ($this->is_colon ? ': ' : ' = ') . $this->pretty_definition();
       }
       $output->addDefinition($def, $this->is_hidden || $this->is_auxiliary);
     }
