@@ -20,7 +20,7 @@ class Highlighter_GG extends Highlighter {
     //return preg_replace('/(\w+)\[/', '<a href="http://wiki.geogebra.org/en/$1_Command">$1</a>[', htmlspecialchars($s, ENT_NOQUOTES));
     $res = '';
 
-    foreach (preg_split('/( "[^"]*" | (?:\w+)\[ | \/\* .*? \*\/ | \/\/.* )/x', $s, -1, PREG_SPLIT_DELIM_CAPTURE) as $part) {
+    foreach (preg_split('/( "[^"]*" | (?:\w+)\[ | \/\* .*? \*\/ | \/\/.* )/ux', $s, -1, PREG_SPLIT_DELIM_CAPTURE) as $part) {
       $first = substr($part, 0, 1);
       if ($first == '"') {
         $res .= '<span class="syn-string">' . preg_replace('/\\\\(?:\w+|.)/', '<span class="syn-latex">$0</span>', htmlspecialchars($part, ENT_NOQUOTES)) . '</span>';
