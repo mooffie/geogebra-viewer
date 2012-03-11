@@ -566,8 +566,10 @@ class Worksheet {
   var $main = NULL;
   // Macros.
   var $macros = array();
-  // JavaScript.
+  // Global JavaScript.
   var $js = '';
+  // Global Python.
+  var $python = '';
 
   function __construct($files) {
     $this->load($files);
@@ -586,6 +588,12 @@ class Worksheet {
       $js = trim(file_get_contents($files['js']));
       if (substr_count($js, "\n") > 0) {
         $this->js = $js;
+      }
+    }
+    if (!empty($files['python'])) {
+      $python = trim(file_get_contents($files['python']));
+      if (substr_count($python, "\n") > 0) {
+        $this->python = $python;
       }
     }
   }
@@ -621,6 +629,13 @@ class Worksheet {
       $output->addScript($this->js, 'JavaScript');
       $output->addEmptyLine();
     }
+    if ($this->python) {
+      $output->addEmptyLine();
+      $output->addDefinition('/* -------- Global Python: -------- */');
+      $output->addEmptyLine();
+      $output->addScript($this->python, 'Python');
+      $output->addEmptyLine();
+    }
   }
 }
 
@@ -634,6 +649,7 @@ if (1 && php_sapi_name() == 'cli') {
       'main' => 'geogebra.xml',
       'macros' => 'geogebra_macro.xml',
       'js' => 'geogebra_javascript.js',
+      'python' => 'geogebra_python.py',
     );
     $ws = new Worksheet($files);
     //$out = new PlainOutput();

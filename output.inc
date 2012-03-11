@@ -223,7 +223,11 @@ class HtmlOutput extends Output {
       }
     }
     else {
-      $this->addRow(($language == 'JavaScript') ? Highlighter_JS::run($block) : htmlspecialchars($block));
+      $this->addRow($language == 'JavaScript'
+                    ? Highlighter_JS::run($block)
+                    : ($language == 'Python'
+                       ? Highlighter_Python::run($block)
+                       : htmlspecialchars($block)));
     }
   }
 

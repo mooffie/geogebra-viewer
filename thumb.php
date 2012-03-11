@@ -72,6 +72,9 @@ function build_output($paths) {
   if (unzip($paths->temp('zip'), 'geogebra_javascript.js', $paths->temp('js'))) {
     $worksheet_files['js'] = $paths->temp('js');
   }
+  if (unzip($paths->temp('zip'), 'geogebra_python.py', $paths->temp('python'))) {
+    $worksheet_files['python'] = $paths->temp('python');
+  }
   $worksheet = new Worksheet($worksheet_files);
   file_put_contents($paths->output('txt'), PlainOutput::stringify($worksheet));
   file_put_contents($paths->output('html'), HtmlOutput::stringify($worksheet));

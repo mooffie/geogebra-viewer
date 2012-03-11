@@ -84,3 +84,33 @@ class Highlighter_JS extends Highlighter {
   }
 
 }
+
+/**
+ * A highlighter for the Python language.
+ */
+class Highlighter_Python extends Highlighter {
+
+  static public function run($s) {
+    $res = '';
+
+    foreach (preg_split('/( """.*?""" | "(?:[^\\\\]|\\\\.)*?" | \'(?:[^\\\\]|\\\\.)*?\' | \#[^\n]* )/sx', $s, -1, PREG_SPLIT_DELIM_CAPTURE) as $part) {
+      $first = substr($part, 0, 1);
+      if ($first == '"' || $first == "'") {
+        $res .= '<span class="syn-js-string">' . htmlspecialchars($part) . '</span>';
+      }
+      elseif ($first == '#') {
+        $res .= '<span class="syn-comment">' . htmlspecialchars($part) . '</span>';
+      }
+      else {
+        $html = htmlspecialchars($part);
+        // We omit "class", as it clashes with the previous HTML.
+        $html = preg_replace('/\b(?:and|assert|break|continue|def|del|elif|else|except|exec|finally|for|from|global|if|import|in|is|lambda|not|or|pass|print|raise|return|try|while|None|True|False)\b/', '<span class="syn-js-keyword-1">$0</span>', $html);
+        $html = preg_replace('/\b(?:ggbApplet|evalCommand|setUndoPoint|deleteObject|setValue|setCoords|setColor|setVisible|setLabelVisible|setLabelStyle|setFixed|setTrace|renameObject|setLayer|setLayerVisible|setLineStyle|setLineThickness|setPointStyle|setPointSize|setFilling|getPNGBase64|writePNGtoFile|isIndependent|isMoveable|getBase64|setBase64|setAnimating|setAnimationSpeed|startAnimation|stopAnimation|isAnimationRunning|getXcoord|getYcoord|getValue|getColor|getVisible|getValueString|getDefinitionString|getCommandString|getObjectType|exists|isDefined|getObjectNumber|getObjectName|getLayer|getLineStyle|getLineThickness|getPointStyle|getPointSize|getFilling|setMode|openFile|reset|refreshViews|setCoordSystem|setAxesVisible|setGridVisible|registerAddListener|registerRemoveListener|registerUpdateListener|registerObjectUpdateListener|registerRenameListener|registerClearListener|evalXML|setXML|getXML|getXML|getAlgorithmXML)\b/', '<span class="syn-js-keyword-2">$0</span>', $html);
+        $res .= $html;
+      }
+    }
+
+    return $res;
+  }
+
+}
