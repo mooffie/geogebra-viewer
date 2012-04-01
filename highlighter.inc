@@ -106,6 +106,8 @@ class Highlighter_Python extends Highlighter {
         // We omit "class", as it clashes with the previous HTML.
         $html = preg_replace('/\b(?:and|assert|break|continue|def|del|elif|else|except|exec|finally|for|from|global|if|import|in|is|lambda|not|or|pass|print|raise|return|try|while|None|True|False)\b/', '<span class="syn-keyword-1">$0</span>', $html);
         $html = preg_replace('/\b(?:ggbApplet|evalCommand|setUndoPoint|deleteObject|setValue|setCoords|setColor|setVisible|setLabelVisible|setLabelStyle|setFixed|setTrace|renameObject|setLayer|setLayerVisible|setLineStyle|setLineThickness|setPointStyle|setPointSize|setFilling|getPNGBase64|writePNGtoFile|isIndependent|isMoveable|getBase64|setBase64|setAnimating|setAnimationSpeed|startAnimation|stopAnimation|isAnimationRunning|getXcoord|getYcoord|getValue|getColor|getVisible|getValueString|getDefinitionString|getCommandString|getObjectType|exists|isDefined|getObjectNumber|getObjectName|getLayer|getLineStyle|getLineThickness|getPointStyle|getPointSize|getFilling|setMode|openFile|reset|refreshViews|setCoordSystem|setAxesVisible|setGridVisible|registerAddListener|registerRemoveListener|registerUpdateListener|registerObjectUpdateListener|registerRenameListener|registerClearListener|evalXML|setXML|getXML|getXML|getAlgorithmXML)\b/', '<span class="syn-keyword-2">$0</span>', $html);
+        // A reference to Geo element.
+        $html = preg_replace('/\$\w+/', '<span class="syn-geo-ref">$0</span>', $html);
         $res .= $html;
       }
     }
