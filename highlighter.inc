@@ -23,7 +23,7 @@ class Highlighter_GG extends Highlighter {
     foreach (preg_split('/( "[^"]*" | (?:\w+)\[ | \/\* .*? \*\/ | \/\/.* )/ux', $s, -1, PREG_SPLIT_DELIM_CAPTURE) as $part) {
       $first = substr($part, 0, 1);
       if ($first == '"') {
-        $res .= '<span class="syn-string">' . preg_replace('/\\\\(?:\w+|.)/', '<span class="syn-latex">$0</span>', htmlspecialchars($part, ENT_NOQUOTES)) . '</span>';
+        $res .= '<span class="syn-ggb-string">' . preg_replace('/\\\\(?:\w+|.)/', '<span class="syn-ggb-latex">$0</span>', htmlspecialchars($part, ENT_NOQUOTES)) . '</span>';
       }
       elseif ($first == '/' && (substr($part, 1, 1) == '*' || substr($part, 1, 1) == '/')) {
         $res .= '<span class="syn-comment">' . htmlspecialchars($part) . '</span>';
@@ -51,7 +51,7 @@ class Highlighter_GG extends Highlighter {
       $url = Commands::wiki($cmd);
       $target = '_blank';
     }
-    return sprintf('<a href="%s" target="%s" class="syn-command %s">%s</a>', $url, $target, $extra_class, $cmd);
+    return sprintf('<a href="%s" target="%s" class="syn-ggb-command %s">%s</a>', $url, $target, $extra_class, $cmd);
   }
 
 }
@@ -67,15 +67,15 @@ class Highlighter_JS extends Highlighter {
     foreach (preg_split('/( "(?:[^\\\\]|\\\\.)*?" | \'(?:[^\\\\]|\\\\.)*?\' | \/\* .*? \*\/ | \/\/[^\n]* )/sx', $s, -1, PREG_SPLIT_DELIM_CAPTURE) as $part) {
       $first = substr($part, 0, 1);
       if ($first == '"' || $first == "'") {
-        $res .= '<span class="syn-js-string">' . htmlspecialchars($part) . '</span>';
+        $res .= '<span class="syn-string">' . htmlspecialchars($part) . '</span>';
       }
       elseif ($first == '/' && (substr($part, 1, 1) == '*' || substr($part, 1, 1) == '/')) {
         $res .= '<span class="syn-comment">' . htmlspecialchars($part) . '</span>';
       }
       else {
         $html = htmlspecialchars($part);
-        $html = preg_replace('/\b(?:break|case|catch|continue|default|delete|do|else|false|for|function|if|in|new|null|return|switch|this|throw|true|try|typeof|var|void|while|with)\b/', '<span class="syn-js-keyword-1">$0</span>', $html);
-        $html = preg_replace('/\b(?:ggbApplet|evalCommand|setUndoPoint|deleteObject|setValue|setCoords|setColor|setVisible|setLabelVisible|setLabelStyle|setFixed|setTrace|renameObject|setLayer|setLayerVisible|setLineStyle|setLineThickness|setPointStyle|setPointSize|setFilling|getPNGBase64|writePNGtoFile|isIndependent|isMoveable|getBase64|setBase64|setAnimating|setAnimationSpeed|startAnimation|stopAnimation|isAnimationRunning|getXcoord|getYcoord|getValue|getColor|getVisible|getValueString|getDefinitionString|getCommandString|getObjectType|exists|isDefined|getObjectNumber|getObjectName|getLayer|getLineStyle|getLineThickness|getPointStyle|getPointSize|getFilling|setMode|openFile|reset|refreshViews|setCoordSystem|setAxesVisible|setGridVisible|registerAddListener|registerRemoveListener|registerUpdateListener|registerObjectUpdateListener|registerRenameListener|registerClearListener|evalXML|setXML|getXML|getXML|getAlgorithmXML)\b/', '<span class="syn-js-keyword-2">$0</span>', $html);
+        $html = preg_replace('/\b(?:break|case|catch|continue|default|delete|do|else|false|for|function|if|in|new|null|return|switch|this|throw|true|try|typeof|var|void|while|with)\b/', '<span class="syn-keyword-1">$0</span>', $html);
+        $html = preg_replace('/\b(?:ggbApplet|evalCommand|setUndoPoint|deleteObject|setValue|setCoords|setColor|setVisible|setLabelVisible|setLabelStyle|setFixed|setTrace|renameObject|setLayer|setLayerVisible|setLineStyle|setLineThickness|setPointStyle|setPointSize|setFilling|getPNGBase64|writePNGtoFile|isIndependent|isMoveable|getBase64|setBase64|setAnimating|setAnimationSpeed|startAnimation|stopAnimation|isAnimationRunning|getXcoord|getYcoord|getValue|getColor|getVisible|getValueString|getDefinitionString|getCommandString|getObjectType|exists|isDefined|getObjectNumber|getObjectName|getLayer|getLineStyle|getLineThickness|getPointStyle|getPointSize|getFilling|setMode|openFile|reset|refreshViews|setCoordSystem|setAxesVisible|setGridVisible|registerAddListener|registerRemoveListener|registerUpdateListener|registerObjectUpdateListener|registerRenameListener|registerClearListener|evalXML|setXML|getXML|getXML|getAlgorithmXML)\b/', '<span class="syn-keyword-2">$0</span>', $html);
         $res .= $html;
       }
     }
@@ -96,7 +96,7 @@ class Highlighter_Python extends Highlighter {
     foreach (preg_split('/( """.*?""" | "(?:[^\\\\]|\\\\.)*?" | \'(?:[^\\\\]|\\\\.)*?\' | \#[^\n]* )/sx', $s, -1, PREG_SPLIT_DELIM_CAPTURE) as $part) {
       $first = substr($part, 0, 1);
       if ($first == '"' || $first == "'") {
-        $res .= '<span class="syn-js-string">' . htmlspecialchars($part) . '</span>';
+        $res .= '<span class="syn-string">' . htmlspecialchars($part) . '</span>';
       }
       elseif ($first == '#') {
         $res .= '<span class="syn-comment">' . htmlspecialchars($part) . '</span>';
@@ -104,8 +104,8 @@ class Highlighter_Python extends Highlighter {
       else {
         $html = htmlspecialchars($part);
         // We omit "class", as it clashes with the previous HTML.
-        $html = preg_replace('/\b(?:and|assert|break|continue|def|del|elif|else|except|exec|finally|for|from|global|if|import|in|is|lambda|not|or|pass|print|raise|return|try|while|None|True|False)\b/', '<span class="syn-js-keyword-1">$0</span>', $html);
-        $html = preg_replace('/\b(?:ggbApplet|evalCommand|setUndoPoint|deleteObject|setValue|setCoords|setColor|setVisible|setLabelVisible|setLabelStyle|setFixed|setTrace|renameObject|setLayer|setLayerVisible|setLineStyle|setLineThickness|setPointStyle|setPointSize|setFilling|getPNGBase64|writePNGtoFile|isIndependent|isMoveable|getBase64|setBase64|setAnimating|setAnimationSpeed|startAnimation|stopAnimation|isAnimationRunning|getXcoord|getYcoord|getValue|getColor|getVisible|getValueString|getDefinitionString|getCommandString|getObjectType|exists|isDefined|getObjectNumber|getObjectName|getLayer|getLineStyle|getLineThickness|getPointStyle|getPointSize|getFilling|setMode|openFile|reset|refreshViews|setCoordSystem|setAxesVisible|setGridVisible|registerAddListener|registerRemoveListener|registerUpdateListener|registerObjectUpdateListener|registerRenameListener|registerClearListener|evalXML|setXML|getXML|getXML|getAlgorithmXML)\b/', '<span class="syn-js-keyword-2">$0</span>', $html);
+        $html = preg_replace('/\b(?:and|assert|break|continue|def|del|elif|else|except|exec|finally|for|from|global|if|import|in|is|lambda|not|or|pass|print|raise|return|try|while|None|True|False)\b/', '<span class="syn-keyword-1">$0</span>', $html);
+        $html = preg_replace('/\b(?:ggbApplet|evalCommand|setUndoPoint|deleteObject|setValue|setCoords|setColor|setVisible|setLabelVisible|setLabelStyle|setFixed|setTrace|renameObject|setLayer|setLayerVisible|setLineStyle|setLineThickness|setPointStyle|setPointSize|setFilling|getPNGBase64|writePNGtoFile|isIndependent|isMoveable|getBase64|setBase64|setAnimating|setAnimationSpeed|startAnimation|stopAnimation|isAnimationRunning|getXcoord|getYcoord|getValue|getColor|getVisible|getValueString|getDefinitionString|getCommandString|getObjectType|exists|isDefined|getObjectNumber|getObjectName|getLayer|getLineStyle|getLineThickness|getPointStyle|getPointSize|getFilling|setMode|openFile|reset|refreshViews|setCoordSystem|setAxesVisible|setGridVisible|registerAddListener|registerRemoveListener|registerUpdateListener|registerObjectUpdateListener|registerRenameListener|registerClearListener|evalXML|setXML|getXML|getXML|getAlgorithmXML)\b/', '<span class="syn-keyword-2">$0</span>', $html);
         $res .= $html;
       }
     }

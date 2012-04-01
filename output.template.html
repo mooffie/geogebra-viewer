@@ -146,45 +146,46 @@ body.is-collapsed #expand-menuitem {
   display: inline !important;
 }
 
-/* ---------- syntax -------------- */
+/* ---------- syntax highlighting -------------- */
 
 /* Color chart: http://johncfish.com/bggallery/otherchart/index.htm */
 
-.syn-string {
+/* Classes beginning with "syn-ggb-" are for GeoGebra code. */
+
+.syn-ggb-string {
   background-color: #ffcc66;
 }
 
-.syn-latex {
+.syn-ggb-latex {
   color: red;
   font-weight: bold;
 }
+
+.syn-ggb-command {
+  color: #0066ff !important; /* For both visited and unvisited links. */
+  text-decoration: none;
+}
+
+.syn-ggb-command.custom {
+  font-weight: bold;
+}
+
+/* Classes beginning with "syn-" are not specific for GeoGebra code (i.e., they're also used for JavaScript/Python code). */
 
 .syn-comment {
   color: #090;
   font-style: italic;
 }
 
-.syn-command {
-  text-decoration: none;
-}
-
-.syn-command {
-  color: #0066ff !important; /* For both visited and unvisited links. */
-}
-
-.syn-command.custom {
-  font-weight: bold;
-}
-
-.syn-js-string {
+.syn-string {
   color: #ff00ff;
 }
 
-.syn-js-keyword-1 {
+.syn-keyword-1 {
   font-weight: bold;
 }
 
-.syn-js-keyword-2 {
+.syn-keyword-2 {
   background-color: #ffa;
 }
 
