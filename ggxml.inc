@@ -567,7 +567,7 @@ class Worksheet {
   // Macros.
   var $macros = array();
   // Global JavaScript.
-  var $js = '';
+  var $javascript = '';
   // Global Python.
   var $python = '';
 
@@ -584,10 +584,10 @@ class Worksheet {
       $xml = simplexml_load_file($files['macros']);
       $this->parse_macros($xml);
     }
-    if (!empty($files['js'])) {
-      $js = trim(file_get_contents($files['js']));
-      if (substr_count($js, "\n") > 0) {
-        $this->js = $js;
+    if (!empty($files['javascript'])) {
+      $javascript = trim(file_get_contents($files['javascript']));
+      if (substr_count($javascript, "\n") > 0) {
+        $this->javascript = $javascript;
       }
     }
     if (!empty($files['python'])) {
@@ -622,11 +622,11 @@ class Worksheet {
     if ($this->main) {
       $this->main->write($output);
     }
-    if ($this->js) {
+    if ($this->javascript) {
       $output->addEmptyLine();
       $output->addDefinition('/* -------- Global JavaScript: -------- */');
       $output->addEmptyLine();
-      $output->addScript($this->js, 'JavaScript');
+      $output->addScript($this->javascript, 'JavaScript');
       $output->addEmptyLine();
     }
     if ($this->python) {
@@ -648,7 +648,7 @@ if (1 && php_sapi_name() == 'cli') {
     $files = array(
       'main' => 'geogebra.xml',
       'macros' => 'geogebra_macro.xml',
-      'js' => 'geogebra_javascript.js',
+      'javascript' => 'geogebra_javascript.js',
       'python' => 'geogebra_python.py',
     );
     $ws = new Worksheet($files);
