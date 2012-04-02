@@ -30,9 +30,6 @@ class GGLine {
   var $event = NULL;
   var $event_languages = '';
 
-  // The GGB type. Used when printing out a macro.
-  var $type = NULL;
-
   /**
    * param $labels
    *    An array of labels. Or one label. Or NULL is to not print any labels.
@@ -97,6 +94,13 @@ class GGLine {
 class GGConstruction {
   var $lines = array();
 
+  // The following maps names to Geo types. Most notably used when printing
+  // out a macro.
+  //
+  // (We can't put a 'type' attribute on a line object because a line may
+  // involve several names; e.g., "p, a, b = Polygon[...]".)
+  var $types = array();
+
   // The file format number. Usually it's also the version of GeoGebra used.
   var $version = NULL;
 
@@ -105,6 +109,18 @@ class GGConstruction {
 
   function add($line) {
     $this->lines[] = $line;
+  }
+
+  function set_type($name, $type) {
+    $this->types[$name] = $type;
+  }
+
+  function get_type($name, $default = NULL) {
+    if (isset($this->types[$name])) {
+      return $this->types[$name];
+    } else {
+      return $default;
+    }
   }
 
   /**
@@ -378,17 +394,20 @@ class GGParser {
   }
 
   function handle_properties($elt) {
-    $line = $this->cons->find_by_label((string)$elt['label']);
+    $label = (string)$elt['label'];
+    $type  = (string)$elt['type'];
 
-    if (!$this->cons->is_mentioned((string)$elt['label'])) {
+    $line = $this->cons->find_by_label($label);
+
+    if (!$this->cons->is_mentioned($label)) {
       // If the object was not yet constructed, do it now.
       $line = $this->handle_free_object($elt);
     }
 
+    $this->cons->set_type($label, $type);
+
     // Add properties
     if ($line) {
-      $type = (string) $elt['type'];
-      $line->type = $type;
 
       if (in_array($type, array('function', 'functionNVar', 'implicitpoly', 'conic', 'line'))) {
         if (!$line->is_command) {
@@ -431,18 +450,18 @@ class GGParser {
       }
 
       if (!empty($elt->condition['showObject'])) {
-        $line = new GGLine(NULL, sprintf('SetConditionToShowObject[%s, %s]', $elt['label'], $elt->condition['showObject']));
+        $line = new GGLine(NULL, sprintf('SetConditionToShowObject[%s, %s]', $label, $elt->condition['showObject']));
         $this->cons->add($line);
       }
 
       if (!empty($elt->trace['val'])) {
         if ($elt->trace['val'] == 'true') {
-          $this->cons->add(new GGLine(NULL, sprintf('%s.trace', $elt['label'])));
+          $this->cons->add(new GGLine(NULL, sprintf('%s.trace', $label)));
         }
       }
       if (!empty($elt->spreadsheetTrace['val'])) {
         if ($elt->spreadsheetTrace['val'] == 'true') {
-          $this->cons->add(new GGLine(NULL, sprintf('%s.recordToSpreadsheet', $elt['label'])));
+          $this->cons->add(new GGLine(NULL, sprintf('%s.recordToSpreadsheet', $label)));
         }
       }
     }
@@ -526,20 +545,13 @@ class Macro {
     // Input args.
     $args = array();
     foreach ($this->inputs as $arg) {
-      if (($line = $this->cons->find_by_label($arg))) {
-        $args[] = sprintf('%s: %s', $arg, $line->type);
-      }
-      else {
-        $args[] = $arg;
-      }
+      $args[] = sprintf('%s: %s', $arg, $this->cons->get_type($arg, '?'));
     }
 
     // Output args.
     $return_types = array();
     foreach ($this->outputs as $arg) {
-      if (($line = $this->cons->find_by_label($arg))) {
-        $return_types[] = $line->type;
-      }
+      $return_types[] = $this->cons->get_type($arg, '?');
     }
 
     $signature = sprintf("macro %s(%s) as %s", $this->name, join(', ', $args), join(', ', $return_types));
@@ -641,7 +653,7 @@ class Worksheet {
 
 
 // Testing code.
-if (1 && php_sapi_name() == 'cli') {
+if (0 && php_sapi_name() == 'cli') {
   error_reporting(E_ALL);
 
   function test1() {
