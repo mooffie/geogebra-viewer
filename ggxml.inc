@@ -284,7 +284,13 @@ class GGParser {
         $def = '(' . join($coords, ', ') . ') /* vector */';
         break;
       case 'conic':
-        $def = 'new conic ' . $elt->matrix->asXML();
+        require_once 'geo_conic.inc';
+        $matrix = array();
+        for ($i = 0; $i <= 5; $i++) {
+          $matrix[] = $this->num_or_str($elt->matrix['A' . $i]);
+        }
+        $conic = new GeoConic($matrix);
+        $def = $conic->toString();
         break;
       case 'implicitpoly':
         if (!empty($elt->userinput['value'])) {
