@@ -49,7 +49,8 @@ class GeoConic {
       $s .= ' = 0';
     }
     else {
-      $s .= ' = ' . (-1 * $this->m[2]);
+      // We multiple in -1 only if it ain't 0.0, as in PHP -1*0.0 gives -0.
+      $s .= ' = ' . ($this->m[2] ? (-1 * $this->m[2]) : 0);
     }
 
     $s = preg_replace('/^\s*\+\s*/', '', $s); // Remove leading "+".

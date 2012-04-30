@@ -289,8 +289,8 @@ class GGParser {
         for ($i = 0; $i <= 5; $i++) {
           $matrix[] = $this->num_or_str($elt->matrix['A' . $i]);
         }
-        $conic = new GeoConic($matrix);
-        $def = $conic->toString();
+        $geo_conic = new GeoConic($matrix);
+        $def = $geo_conic->toString();
         break;
       case 'implicitpoly':
         if (!empty($elt->userinput['value'])) {
