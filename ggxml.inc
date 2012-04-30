@@ -307,21 +307,14 @@ class GGParser {
         $def = $this->num_or_str(  ((float)$elt->value['val']/M_PI * 180)  ) . '°';
         break;
       case 'line':
-        $coords = array('x' => $this->num_or_str($elt->coords['x']), 'y' => $this->num_or_str($elt->coords['y']), 'z' => $this->num_or_str($elt->coords['z']));
-        $out = '';
-        if ($coords['x']) {
-          $out .= $coords['x'] . 'x';
-        }
-        if ($coords['y']) {
-          if ($coords['x']) {
-            $out .= ' + ';
-          }
-          $out .= $coords['y'] . 'y';
-        }
-        $out = preg_replace('/(-?)1(\w)/', '\1\2', $out); // Remove "1" coefficients.
-        $out .= ' = ';
-        $out .= -1 * $coords['z'];
-        $def = $out;
+        require_once 'geo_line.inc';
+        $geo_line = new GeoLine(
+          $this->num_or_str($elt->coords['x']),
+          $this->num_or_str($elt->coords['y']),
+          $this->num_or_str($elt->coords['z']),
+          $this->decimals
+        );
+        $def = $geo_line->toString();
         break;
     }
 
@@ -670,8 +663,8 @@ if (0 && php_sapi_name() == 'cli') {
       'python' => 'geogebra_python.py',
     );
     $ws = new Worksheet($files);
-    //$out = new PlainOutput();
-    $out = new HtmlOutput();
+    $out = new PlainOutput();
+    //$out = new HtmlOutput();
     $ws->write($out);
     print $out->toString() . "\n";
     file_put_contents('out.html', $out->toString());
