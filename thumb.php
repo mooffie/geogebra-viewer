@@ -24,6 +24,14 @@ else {
   define('DBG', FALSE);
 }
 
+if (!empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
+  if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE) {
+    if ($output_type == 'html') {
+      $output_type = 'html.gz';
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -78,6 +86,7 @@ function build_output($paths) {
   $worksheet = new Worksheet($worksheet_files);
   file_put_contents($paths->output('txt'), PlainOutput::stringify($worksheet));
   file_put_contents($paths->output('html'), HtmlOutput::stringify($worksheet));
+  exec(sprintf('gzip -c %s > %s', $paths->output('html'), $paths->output('html.gz')));
 }
 
 function output($paths, $output_type) {

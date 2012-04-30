@@ -1,3 +1,6 @@
 php_flag display_errors on
 
 AddType application/vnd.geogebra.file ggb
+
+AddType text/html gz
+AddEncoding gzip gz
