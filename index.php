@@ -35,6 +35,24 @@ li {
   padding: 0.3em;
 }
 
+fieldset {
+  margin-top: .5em;
+  margin-bottom: .8em;
+  padding-top: .8em;
+  padding-bottom: .8em;
+}
+
+fieldset legend {
+  font-style: italic;
+  font-weight: bold;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  margin: 1em 0;
+}
+
 </style>
 <body>
 
@@ -104,6 +122,75 @@ workaround: most browsers let you open an iframe in a new tab; click
 with your right mouse button in the frame and see the menu).</li>
 
 </ul>
+
+<h2>Uploading a file</h2>
+
+<p>If you wish to analyze your own ggb (or ggt) files, that aren't on the internet, you may upload them here.</p>
+
+<form method="post" enctype="multipart/form-data">
+
+<fieldset>
+<legend>Upload your own file</legend>
+
+<?php
+require_once 'utils.inc';
+
+date_default_timezone_set('Asia/Jerusalem'); // We have to set something or else PHP will complain.
+
+if (!empty($_FILES['file'])) {
+
+  $MAX_SIZE = 1024 * 1024 * 10;
+
+  $error = '';
+  if ($_FILES['file']['error'] > 0) {
+    switch ($_FILES['file']['error']) {
+      case UPLOAD_ERR_NO_FILE:  $error = 'No file was uploaded.'; break;
+      case UPLOAD_ERR_INI_SIZE: $error = 'File too big.'; break;
+      default: $error = sprintf('Some error occured (%s).', $_FILES['file']['error']);
+    }
+  }
+  else if ($_FILES['file']['size'] > $MAX_SIZE) {
+    $error = sprintf('File too big for uploading (max %s bytes allowed here).', $_FILES['file']['size']);
+  }
+  else if (!is_valid_zip($_FILES['file']['tmp_name'])) {
+    $error = "This doesn't look like a valid ggb/ggt file (that is, it's not a valid ZIP file).";
+  }
+
+  function service_url($file, $output_type) {
+    $file_url = absolutize_url($file);
+    return sprintf('http://www.typo.co.il/~mooffie/ggb/thumb.php?url=%s&output_type=%s', urlencode($file_url), $output_type);
+  }
+
+  if (!$error) {
+    $outfile = 'tmp/user_upload' . date('__Y-m-d__H_i_s__') . rand() . '.ggb';
+    move_uploaded_file($_FILES['file']['tmp_name'], $outfile);
+    header('Location: ' . service_url($outfile, $_REQUEST['output_type']));
+  }
+
+  if ($error) {
+    echo "<div class='error'>Error: $error</div>";
+  }
+}
+?>
+
+The file: <input type="file" name="file" />
+
+<fieldset>
+
+<legend>What do you wish to see?</legend>
+  <input type="radio" name="output_type" id="show-html" value="html" checked="checked" />
+    <label for="show-html">The construction protocol</label> <br />
+  <input type="radio" name="output_type" id="show-plain" value="txt" />
+    <label for="show-plain"> The construction protocol (plain text version)</label> <br />
+  <input type="radio" name="output_type" id="show-png" value="png" />
+    <label for="show-png">The thumbnail (if exists)</label>
+</fieldset>
+
+<input type="submit" name="submit" value=" Upload! " />
+
+</fieldset>
+
+</form>
 
 <h2>Contact</h2>
 
