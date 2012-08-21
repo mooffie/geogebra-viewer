@@ -405,7 +405,7 @@ class GGParser {
 
     $this->cons->set_type($label, $type);
 
-    // Add properties
+    // Alter properties of an existing "line".
     if ($line) {
 
       if (in_array($type, array('function', 'functionNVar', 'implicitpoly', 'conic', 'line'))) {
@@ -425,45 +425,59 @@ class GGParser {
           $line->is_auxiliary = TRUE;
         }
       }
+    }
 
-      // Add animation or slider.
-      if (!empty($elt->animation['playing']) && $elt->animation['playing'] == 'true') {
-        $this->add_animation($elt);
-      } else {
-        if (!$line->is_hidden) {
-          $this->add_slider($elt);
+    //
+    // Add properties.
+    //
+    // Note: elements here may not have a $line. E.g., when we have "poly1, c, a, b = Polygon[A, B, C]"
+    // then "poly1" doesn't have a $line. Yet we wish to print event handlers and anything else
+    // attributed to them.
+    //
+
+    // Add animation or slider.
+    if (!empty($elt->animation['playing']) && $elt->animation['playing'] == 'true') {
+      $this->add_animation($elt);
+    } else {
+      if ($line && $line->is_hidden) {
+        // skip.
+      }
+      else {
+        $this->add_slider($elt);
+      }
+    }
+
+    // Add event handlers.
+    foreach (array('ggbscript' => 'GeoGebra', 'javascript' => 'JavaScript', 'python' => 'Python') as $slot => $language) {
+      if ($elt->$slot) {
+        $slot = $elt->$slot;
+        if ($slot['val']) {
+          $this->add_script($elt, 'click', $slot['val'], $language);
         }
-      }
-
-      // Add event handlers.
-      foreach (array('ggbscript' => 'GeoGebra', 'javascript' => 'JavaScript', 'python' => 'Python') as $slot => $language) {
-        if ($elt->$slot) {
-          $slot = $elt->$slot;
-          if ($slot['val']) {
-            $this->add_script($elt, 'click', $slot['val'], $language);
-          }
-          if ($slot['onUpdate']) {
-            $this->add_script($elt, 'update', $slot['onUpdate'], $language);
-          }
-        }
-      }
-
-      if (!empty($elt->condition['showObject'])) {
-        $line = new GGLine(NULL, sprintf('SetConditionToShowObject[%s, %s]', $label, $elt->condition['showObject']));
-        $this->cons->add($line);
-      }
-
-      if (!empty($elt->trace['val'])) {
-        if ($elt->trace['val'] == 'true') {
-          $this->cons->add(new GGLine(NULL, sprintf('%s.trace', $label)));
-        }
-      }
-      if (!empty($elt->spreadsheetTrace['val'])) {
-        if ($elt->spreadsheetTrace['val'] == 'true') {
-          $this->cons->add(new GGLine(NULL, sprintf('%s.recordToSpreadsheet', $label)));
+        if ($slot['onUpdate']) {
+          $this->add_script($elt, 'update', $slot['onUpdate'], $language);
         }
       }
     }
+
+    // Add visibility.
+    if (!empty($elt->condition['showObject'])) {
+      $line = new GGLine(NULL, sprintf('SetConditionToShowObject[%s, %s]', $label, $elt->condition['showObject']));
+      $this->cons->add($line);
+    }
+
+    // Add tracing / recording.
+    if (!empty($elt->trace['val'])) {
+      if ($elt->trace['val'] == 'true') {
+        $this->cons->add(new GGLine(NULL, sprintf('%s.trace', $label)));
+      }
+    }
+    if (!empty($elt->spreadsheetTrace['val'])) {
+      if ($elt->spreadsheetTrace['val'] == 'true') {
+        $this->cons->add(new GGLine(NULL, sprintf('%s.recordToSpreadsheet', $label)));
+      }
+    }
+
   }
 
   /**
