@@ -2,7 +2,17 @@
 
 error_reporting(E_ALL);
 
-mb_internal_encoding('UTF-8');
+if (!function_exists('mb_strlen')) {
+  // If the PHP 'mbstring' extension isn't loaded, we imitate mb_strlen() ourselves.
+  // Code taken from Drupal.
+  function mb_strlen($text) {
+    // Do not count UTF-8 continuation bytes.
+    return strlen(preg_replace("/[\x80-\xBF]/", '', $text));
+  }
+}
+else {
+  mb_internal_encoding('UTF-8');
+}
 
 // TODO:
 //   - cleanup.
