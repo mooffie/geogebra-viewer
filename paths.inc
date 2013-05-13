@@ -11,6 +11,13 @@ class Paths {
   private $temp_list = array();
 
   function __construct($url) {
+
+    if (strpos($url, 'https://www.geogebra.org/forum/download/') !== FALSE) {
+      // Files on GG's forum can be accessed both ways. We use only one way
+      // so our cache won't contain two copies and be inefficient.
+      $url = str_replace('https://', 'http://', $url);
+    }
+
     $this->url = $url;
     $this->temp_seed = $_SERVER['REQUEST_TIME'] . '-' . rand();
   }
